@@ -40,12 +40,13 @@ export default function Home() {
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
+                aria-pressed={mode === m}
                 className={`rounded px-3 py-0.5 text-xs font-semibold uppercase ${
                   mode === m
                     ? m === "live"
-                      ? "bg-emerald-600 text-white"
+                      ? "bg-emerald-700 text-white"
                       : "bg-violet-600 text-white"
-                    : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                    : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200"
                 }`}
               >
                 {m}

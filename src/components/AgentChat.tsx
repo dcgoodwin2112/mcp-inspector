@@ -202,11 +202,11 @@ export function AgentChat({
             <span className="font-semibold uppercase text-amber-700 dark:text-amber-400">
               /{pending.name}
             </span>
-            <span className="text-zinc-500">expanded — this is what will be sent:</span>
+            <span className="text-zinc-500 dark:text-zinc-400">expanded — this is what will be sent:</span>
             <button
               type="button"
               onClick={() => setPending(null)}
-              className="ml-auto text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+              className="ml-auto text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
             >
               ✕ cancel (Esc)
             </button>
@@ -232,11 +232,12 @@ export function AgentChat({
             onChange={(e) => setText(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Ask the model — or / for prompts…"
+            aria-label="Ask the model — or type / for prompt commands"
             autoComplete="off"
-            className="w-full rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="w-full rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
           />
           {slash && slash.rest !== null && !pending && (
-            <p className="mt-0.5 text-[11px] text-zinc-400">
+            <p className="mt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400">
               {!activePrompt ? (
                 <>unknown prompt “{slash.name}”</>
               ) : argState?.requiredFilled ? (
@@ -267,7 +268,7 @@ export function AgentChat({
                         }`}
                       >
                         <span className="font-mono font-medium">/{p.name}</span>
-                        <span className="truncate text-zinc-400">{p.description}</span>
+                        <span className="truncate text-zinc-500 dark:text-zinc-400">{p.description}</span>
                       </button>
                     </li>
                   ))
@@ -294,13 +295,13 @@ export function AgentChat({
           disabled={buttonDisabled}
           className={`rounded-md px-4 py-1 text-sm font-medium text-white disabled:opacity-50 ${
             pending || slash
-              ? "bg-amber-700 hover:bg-amber-600"
+              ? "bg-amber-700 hover:bg-amber-800"
               : "bg-fuchsia-700 hover:bg-fuchsia-600"
           }`}
         >
           {buttonLabel}
         </button>
-        <label className="flex items-center gap-1 text-xs text-zinc-500">
+        <label className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
           <input
             type="checkbox"
             checked={stepMode}

@@ -21,7 +21,7 @@ function Frame({ label, data }: { label: string; data: unknown }) {
   if (data === undefined || data === null) return null;
   return (
     <div>
-      <span className="text-[10px] font-semibold uppercase text-zinc-400">{label}</span>
+      <span className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">{label}</span>
       <pre className="mt-0.5 max-h-56 overflow-y-auto whitespace-pre-wrap break-all rounded bg-zinc-100 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
         {JSON.stringify(data, null, 2)}
       </pre>
@@ -69,28 +69,28 @@ export function FramesDrawer({ events }: { events: InspectorEvent[] }) {
   return (
     <div className="flex h-full min-h-0 flex-col rounded-t-md border border-b-0 border-zinc-300 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/80">
       <div className="flex shrink-0 items-center gap-2 border-b border-zinc-200 px-3 py-1.5 dark:border-zinc-800">
-        <span className="font-mono text-xs font-semibold text-zinc-500">{"{ }"}</span>
-        <span className="text-xs font-semibold uppercase text-zinc-500">
+        <span className="font-mono text-xs font-semibold text-zinc-500 dark:text-zinc-400">{"{ }"}</span>
+        <span className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
           JSON-RPC frames
         </span>
-        <span className="text-xs text-zinc-400">
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
           {pairs.length} exchange{pairs.length === 1 ? "" : "s"} · paired by request id
         </span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-2 py-1.5">
         {pairs.length === 0 ? (
-          <p className="py-4 text-center text-xs text-zinc-400">No frames yet.</p>
+          <p className="py-4 text-center text-xs text-zinc-500 dark:text-zinc-400">No frames yet.</p>
         ) : (
           <ul className="space-y-1">
             {pairs.map((p) => (
               <li key={p.key}>
                 <details className="rounded border border-zinc-200 bg-white px-2 py-1 dark:border-zinc-800 dark:bg-zinc-900">
                   <summary className="flex cursor-pointer select-none items-center gap-2 font-mono text-xs">
-                    <span className="text-zinc-400">{p.notification ? "⋯" : "⇄"}</span>
+                    <span className="text-zinc-500 dark:text-zinc-400">{p.notification ? "⋯" : "⇄"}</span>
                     <span className="font-medium">{p.method ?? "(unknown)"}</span>
-                    {p.requestId && <span className="text-zinc-400">{p.requestId}</span>}
+                    {p.requestId && <span className="text-zinc-500 dark:text-zinc-400">{p.requestId}</span>}
                     {p.notification && (
-                      <span className="text-[10px] uppercase text-zinc-400">notification</span>
+                      <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400">notification</span>
                     )}
                     {p.response?.http && (
                       <span
@@ -104,10 +104,10 @@ export function FramesDrawer({ events }: { events: InspectorEvent[] }) {
                       </span>
                     )}
                     {p.response?.http?.sse && (
-                      <span className="text-[10px] text-zinc-400">SSE</span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">SSE</span>
                     )}
                     {!p.response && !p.notification && (
-                      <span className="text-[10px] text-zinc-400">no response</span>
+                      <span className="text-[10px] text-zinc-500 dark:text-zinc-400">no response</span>
                     )}
                   </summary>
                   <div className="mt-1.5 space-y-1.5">

@@ -34,7 +34,7 @@ function Json({ data }: { data: unknown }) {
 function Raw({ summary, data }: { summary: string; data: unknown }) {
   return (
     <details className="mt-1">
-      <summary className="cursor-pointer select-none text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300">
+      <summary className="cursor-pointer select-none text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300">
         {summary}
       </summary>
       <Json data={data} />
@@ -98,8 +98,8 @@ export function EventCard({
         <Card tone="system">
           <span className="font-medium">Session started</span> — profile{" "}
           <span className="font-medium">{event.profile}</span>{" "}
-          <span className="font-mono text-xs text-zinc-500">{event.serverUrl}</span>{" "}
-          <span className="text-xs text-zinc-500">
+          <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.serverUrl}</span>{" "}
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
             ({event.transport}, {event.mode})
           </span>
         </Card>
@@ -109,7 +109,7 @@ export function EventCard({
       return (
         <Card tone="system">
           <span className="font-medium">Session ended</span>{" "}
-          <span className="text-xs text-zinc-500">({event.reason})</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">({event.reason})</span>
         </Card>
       );
 
@@ -119,7 +119,7 @@ export function EventCard({
           <span className="font-medium">MCP initialized</span> — {event.serverInfo.name} v
           {event.serverInfo.version}
           {event.mcpSessionId && (
-            <span className="ml-2 font-mono text-xs text-zinc-500">{event.mcpSessionId}</span>
+            <span className="ml-2 font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.mcpSessionId}</span>
           )}
           <Raw summary="capabilities" data={event.capabilities} />
         </Card>
@@ -136,7 +136,7 @@ export function EventCard({
       return (
         <Card tone="system">
           OAuth <span className="font-mono text-xs">{event.step}</span>
-          {event.detail && <span className="ml-2 text-xs text-zinc-500">{event.detail}</span>}
+          {event.detail && <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">{event.detail}</span>}
         </Card>
       );
 
@@ -145,7 +145,7 @@ export function EventCard({
         <Card tone="system">
           Token received — scopes{" "}
           <span className="font-mono text-xs">{event.scopes.join(", ")}</span>
-          <span className="ml-2 text-xs text-zinc-500">
+          <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
             expires {new Date(event.expiresAt).toLocaleTimeString()}
           </span>
           <span className="ml-2 rounded bg-zinc-200 px-1 font-mono text-xs dark:bg-zinc-700">
@@ -163,7 +163,7 @@ export function EventCard({
             {items.length} {s.label}
             {items.length === 1 ? "" : "s"} listed
           </span>{" "}
-          <span className="text-xs text-zinc-500">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">
             persona: {event.persona}
             {mergedTemplates && (
               <>
@@ -179,7 +179,7 @@ export function EventCard({
           <Card primitive={event.primitive}>
             <details>
               <summary className="cursor-pointer select-none">
-                {title} <span className="text-xs text-zinc-400">· re-listed</span>
+                {title} <span className="text-xs text-zinc-500 dark:text-zinc-400">· re-listed</span>
               </summary>
               <CapChips items={items} />
             </details>
@@ -196,7 +196,7 @@ export function EventCard({
 
     case "turn.started":
       return (
-        <div className="flex items-center gap-2 text-xs text-zinc-400">
+        <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
           <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
           {event.turnId} · {event.trigger}
           <span className="h-px flex-1 bg-zinc-200 dark:bg-zinc-800" />
@@ -229,7 +229,7 @@ export function EventCard({
       return (
         <Card tone="system">
           <span className="font-medium">Context snapshot</span>{" "}
-          <span className="text-xs text-zinc-500">what the model receives · {event.turnId}</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">what the model receives · {event.turnId}</span>
           <ul className="mt-1 space-y-0.5 text-xs">
             {event.blocks.map((b, i) => (
               <li key={i} className="text-zinc-600 dark:text-zinc-400">
@@ -278,7 +278,7 @@ export function EventCard({
           <div className="flex items-center gap-2">
             <PrimitiveTag primitive="tool" />
             <span className="font-mono font-medium">{event.toolName}</span>
-            <span className="text-xs text-zinc-500">{event.latencyMs} ms</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">{event.latencyMs} ms</span>
             {event.isError ? (
               <span className="text-xs font-semibold text-red-600 dark:text-red-400">
                 isError
@@ -296,7 +296,7 @@ export function EventCard({
         <Card primitive="resource">
           <PrimitiveTag primitive="resource" />{" "}
           <span className="font-mono font-medium">{event.uri}</span>{" "}
-          <span className="text-xs text-zinc-500">{event.latencyMs} ms</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">{event.latencyMs} ms</span>
           <Raw summary="contents" data={event.contents} />
         </Card>
       );
@@ -306,7 +306,7 @@ export function EventCard({
         <Card primitive="resource">
           <PrimitiveTag primitive="resource" /> attached:{" "}
           <span className="font-medium">{event.name}</span>{" "}
-          <span className="font-mono text-xs text-zinc-500">{event.uri}</span>
+          <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.uri}</span>
         </Card>
       );
 
@@ -315,7 +315,7 @@ export function EventCard({
         <Card primitive="resource">
           <PrimitiveTag primitive="resource" /> detached:{" "}
           <span className="font-medium line-through">{event.name}</span>{" "}
-          <span className="font-mono text-xs text-zinc-500">{event.uri}</span>
+          <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.uri}</span>
         </Card>
       );
 
@@ -323,7 +323,7 @@ export function EventCard({
       return (
         <Card tone="system">
           <span className="font-medium">Context updated</span>{" "}
-          <span className="text-xs text-zinc-500">({event.field})</span> — {event.detail}
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">({event.field})</span> — {event.detail}
           {event.text !== undefined && <Raw summary="new value" data={event.text} />}
         </Card>
       );
@@ -342,7 +342,7 @@ export function EventCard({
         <Card primitive="prompt">
           <PrimitiveTag primitive="prompt" />{" "}
           <span className="font-mono font-medium">{event.promptName}</span>{" "}
-          <span className="text-xs text-zinc-500">expanded — shown before send</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">expanded — shown before send</span>
           <div className="mt-1 space-y-1">
             {event.messages.map((m, i) => (
               <p key={i} className="text-xs">
@@ -357,16 +357,16 @@ export function EventCard({
     case "rpc.response":
     case "rpc.notification":
       return (
-        <div className="rounded border border-dashed border-zinc-300 px-3 py-1.5 font-mono text-xs text-zinc-500 dark:border-zinc-700">
+        <div className="rounded border border-dashed border-zinc-300 px-3 py-1.5 font-mono text-xs text-zinc-500 dark:text-zinc-400 dark:border-zinc-700">
           <span className="flex items-center gap-2">
             <span>{event.type === "rpc.request" ? "→" : event.type === "rpc.response" ? "←" : "⋯"}</span>
             <span>{event.type}</span>
-            {event.method && <span className="text-zinc-400">{event.method}</span>}
-            {event.requestId && <span className="text-zinc-400">{event.requestId}</span>}
+            {event.method && <span className="text-zinc-500 dark:text-zinc-400">{event.method}</span>}
+            {event.requestId && <span className="text-zinc-500 dark:text-zinc-400">{event.requestId}</span>}
             {event.type === "rpc.response" && event.http && (
               <>
                 <HttpStatus status={event.http.status} />
-                {event.http.sse && <span className="text-zinc-400">SSE</span>}
+                {event.http.sse && <span className="text-zinc-500 dark:text-zinc-400">SSE</span>}
               </>
             )}
           </span>
@@ -381,7 +381,7 @@ export function EventCard({
       return (
         <Card tone="error">
           <span className="font-semibold text-red-700 dark:text-red-400">Error</span>{" "}
-          <span className="text-xs text-zinc-500">({event.scope})</span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">({event.scope})</span>
           <div className="mt-1 flex items-center gap-2">
             {event.httpStatus !== undefined && <HttpStatus status={event.httpStatus} />}
             {event.code !== undefined && (

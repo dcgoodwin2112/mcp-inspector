@@ -37,7 +37,7 @@ function Column({
   return (
     <div className={`rounded-md border-t-2 ${s.border.replace("border-l-", "border-t-")} bg-zinc-50 p-2 dark:bg-zinc-900/60`}>
       <h3 className={`mb-1.5 text-xs font-semibold uppercase ${s.text}`}>
-        {title} <span className="font-normal text-zinc-400">({items.length})</span>
+        {title} <span className="font-normal text-zinc-500 dark:text-zinc-400">({items.length})</span>
       </h3>
       <ul className="space-y-1">
         {curated.map((item) => (
@@ -74,7 +74,7 @@ function Column({
                   className={`shrink-0 rounded px-1 font-mono ${
                     openSchema === item.name
                       ? "bg-zinc-200 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200"
-                      : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                      : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
                   }`}
                 >
                   {"{}"}
@@ -93,7 +93,7 @@ function Column({
         <button
           type="button"
           onClick={() => setShowAll(true)}
-          className="mt-1.5 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+          className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
         >
           + {hiddenCount} more…
         </button>
@@ -102,7 +102,7 @@ function Column({
         <button
           type="button"
           onClick={() => setShowAll(false)}
-          className="mt-1.5 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+          className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
         >
           show curated subset
         </button>

@@ -34,10 +34,10 @@ export function CapabilityDiff({ events }: { events: InspectorEvent[] }) {
 
   return (
     <div className="rounded-md border border-zinc-300 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-900/60">
-      <h3 className="text-xs font-semibold uppercase text-zinc-500">
+      <h3 className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">
         Capability diff — {diff.a} ({diff.countA} tools) → {diff.b} ({diff.countB} tools)
       </h3>
-      <p className="mt-0.5 text-xs text-zinc-400">
+      <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
         The MCP surface is permission-dependent: Drupal permissions filter tools/list per token.
       </p>
       {diff.added.length > 0 && (
@@ -65,7 +65,7 @@ export function CapabilityDiff({ events }: { events: InspectorEvent[] }) {
         </div>
       )}
       {diff.added.length === 0 && diff.removed.length === 0 && (
-        <p className="mt-2 text-xs text-zinc-400">no differences</p>
+        <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">no differences</p>
       )}
     </div>
   );

@@ -213,20 +213,21 @@ export function LiveView({
           )}
           {profile && (
             <>
-              <span className="text-sm text-zinc-500">{profile.name}</span>
-              <span className="font-mono text-xs text-zinc-400">{profile.mcpUrl}</span>
+              <span className="text-sm text-zinc-500 dark:text-zinc-400">{profile.name}</span>
+              <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{profile.mcpUrl}</span>
               <span className="basis-full" />
               {profile.personas.map((p) => (
                 <button
                   key={p.key}
                   type="button"
                   onClick={() => selectPersona(p.key)}
+                  aria-pressed={persona === p.key}
                   title={p.scope}
                   className={`rounded-full px-3 py-1 text-xs font-medium ${
                     persona === p.key
                       ? p.key === "editor"
-                        ? "bg-orange-600 text-white"
-                        : "bg-emerald-600 text-white"
+                        ? "bg-orange-700 text-white"
+                        : "bg-emerald-700 text-white"
                       : "border border-zinc-300 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                   }`}
                 >
@@ -266,7 +267,7 @@ export function LiveView({
                 sessionRef.current!.completeArgument(promptName, argName, value)
               }
             />
-            <details className="text-xs text-zinc-400">
+            <details className="text-xs text-zinc-500 dark:text-zinc-400">
               <summary className="cursor-pointer select-none hover:text-zinc-600 dark:hover:text-zinc-300">
                 force-call a hidden tool…
               </summary>
@@ -276,7 +277,8 @@ export function LiveView({
                   value={forceName}
                   onChange={(e) => setForceName(e.target.value)}
                   placeholder="update_dataset"
-                  className="min-w-0 flex-1 rounded border border-zinc-300 bg-white px-1.5 py-0.5 font-mono dark:border-zinc-700 dark:bg-zinc-900"
+                  aria-label="Tool name to force-call"
+                  className="min-w-0 flex-1 rounded border border-zinc-300 bg-white px-1.5 py-0.5 font-mono dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 />
                 <button
                   type="button"
@@ -394,18 +396,19 @@ export function LiveView({
       {/* ---- Right pane: the timeline, always visible ---- */}
       <section className="flex min-h-0 min-w-0 flex-1 flex-col border-zinc-200 py-3 dark:border-zinc-800 max-lg:border-t lg:pl-3">
         <div className={`mb-2 flex shrink-0 items-center gap-2 ${present ? "hidden" : ""}`}>
-          <h2 className="text-xs font-semibold uppercase text-zinc-400">Timeline</h2>
+          <h2 className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Timeline</h2>
           <button
             type="button"
             onClick={() => {
               setContextOpen(false);
               toggleRawFrames();
             }}
+            aria-pressed={rawFrames}
             title="Show raw JSON-RPC frames"
             className={`rounded-md border px-2 py-0.5 font-mono text-xs ${
               rawFrames
                 ? "border-cyan-500 bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
-                : "border-zinc-300 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                : "border-zinc-300 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
             }`}
           >
             {"{ }"} Raw frames
@@ -418,11 +421,12 @@ export function LiveView({
                 return !v;
               });
             }}
+            aria-pressed={contextOpen}
             title="What the next model call will send"
             className={`rounded-md border px-2 py-0.5 font-mono text-xs ${
               contextOpen
                 ? "border-fuchsia-500 bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300"
-                : "border-zinc-300 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                : "border-zinc-300 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
             }`}
           >
             ⊞ Context

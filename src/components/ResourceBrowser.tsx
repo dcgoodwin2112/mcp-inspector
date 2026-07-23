@@ -23,7 +23,7 @@ function ContentView({ blocks }: { blocks: ResourceContent[] }) {
         }
         return (
           <div key={i}>
-            <span className="text-[10px] uppercase text-zinc-400">
+            <span className="text-[10px] uppercase text-zinc-500 dark:text-zinc-400">
               {b.mimeType ?? "content"} · {b.uri}
             </span>
             <pre className="max-h-56 overflow-y-auto whitespace-pre-wrap break-all rounded bg-zinc-100 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
@@ -91,13 +91,13 @@ export function ResourceBrowser({
         <button
           type="button"
           onClick={onClose}
-          className="ml-auto shrink-0 text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+          className="ml-auto shrink-0 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
         >
           ✕ close
         </button>
       </div>
       {resource.description && (
-        <p className="mb-2 text-xs text-zinc-500">{resource.description}</p>
+        <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">{resource.description}</p>
       )}
       {vars.length > 0 && (
         <div className="grid gap-2 sm:grid-cols-2">
@@ -108,7 +108,7 @@ export function ResourceBrowser({
                 type="text"
                 value={values[v] ?? ""}
                 onChange={(e) => setValues((s) => ({ ...s, [v]: e.target.value }))}
-                className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900"
+                className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
               />
             </label>
           ))}
@@ -138,7 +138,7 @@ export function ResourceBrowser({
 
       {attached.length > 0 && (
         <div className="mt-3 border-t border-indigo-200 pt-2 dark:border-indigo-900">
-          <span className="text-[10px] font-semibold uppercase text-zinc-400">
+          <span className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">
             attached to context ({attached.length})
           </span>
           <div className="mt-1 flex flex-wrap gap-1">

@@ -35,7 +35,7 @@ function Section({
         <span className="font-semibold">{title}</span>
         <span className="ml-auto flex items-center gap-2">
           {action}
-          <span className="font-mono text-[10px] text-zinc-400">{size}</span>
+          <span className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">{size}</span>
         </span>
       </summary>
       <div className="border-t border-zinc-100 px-2 py-1.5 dark:border-zinc-800">{children}</div>
@@ -66,7 +66,7 @@ function SmallBtn({
       className={`rounded border px-1.5 py-0.5 text-[10px] disabled:opacity-40 ${
         tone === "danger"
           ? "border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40"
-          : "border-zinc-300 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          : "border-zinc-300 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
       }`}
     >
       {children}
@@ -134,13 +134,13 @@ function Blocks({ content }: { content: unknown }) {
           const think = b as unknown as { thinking?: string };
           return (
             <div key={i} className="rounded border-l-2 border-zinc-400 bg-zinc-50 p-1.5 dark:bg-zinc-950">
-              <span className="font-mono text-[11px] font-semibold text-zinc-500">✦ thinking</span>
+              <span className="font-mono text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">✦ thinking</span>
               {think.thinking ? (
                 <pre className="mt-0.5 whitespace-pre-wrap break-words font-mono text-[10px]">
                   {think.thinking}
                 </pre>
               ) : (
-                <span className="ml-1 font-mono text-[10px] text-zinc-500">(encrypted — sent back verbatim)</span>
+                <span className="ml-1 font-mono text-[10px] text-zinc-500 dark:text-zinc-400">(encrypted — sent back verbatim)</span>
               )}
             </div>
           );
@@ -181,11 +181,11 @@ export function ContextInspector({
   return (
     <div className="flex h-full min-h-0 flex-col rounded-t-md border border-b-0 border-zinc-300 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/80">
       <div className="flex shrink-0 items-center gap-2 border-b border-zinc-200 px-3 py-1.5 dark:border-zinc-800">
-        <span className="text-xs font-semibold uppercase text-zinc-500">Context</span>
-        <span className="text-xs text-zinc-400">
+        <span className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Context</span>
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">
           what the next model call will send — nothing else exists for the model
         </span>
-        <span className="ml-auto font-mono text-[10px] text-zinc-400">total {tok(totalChars)}</span>
+        <span className="ml-auto font-mono text-[10px] text-zinc-500 dark:text-zinc-400">total {tok(totalChars)}</span>
       </div>
       <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-2 py-1.5">
         <Section
@@ -230,7 +230,7 @@ export function ContextInspector({
             </div>
           ) : (
             <div>
-              <span className="text-[10px] font-semibold uppercase text-zinc-400">
+              <span className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">
                 instructions{loop.systemBase !== AGENT_SYSTEM_SUMMARY ? " · edited" : ""}
               </span>
               <pre className="whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
@@ -268,7 +268,7 @@ export function ContextInspector({
           }
         >
           {messages.length === 0 ? (
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
               No conversation yet — the model has not been called this session.
             </p>
           ) : (
@@ -304,10 +304,11 @@ export function ContextInspector({
                   type="button"
                   disabled={busy}
                   onClick={() => session.toggleTool(t.name)}
+                  aria-pressed={!off}
                   title={off ? "hidden from the model — click to re-enable" : t.description}
                   className={`rounded border px-1.5 py-0.5 font-mono text-[11px] disabled:opacity-40 ${
                     off
-                      ? "border-zinc-200 text-zinc-400 line-through opacity-60 dark:border-zinc-800"
+                      ? "border-zinc-200 text-zinc-500 dark:text-zinc-400 line-through opacity-60 dark:border-zinc-800"
                       : "border-zinc-200 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
                   }`}
                 >
@@ -316,7 +317,7 @@ export function ContextInspector({
               );
             })}
           </div>
-          <p className="mt-1 text-[10px] text-zinc-400">
+          <p className="mt-1 text-[10px] text-zinc-500 dark:text-zinc-400">
             click to toggle what the MODEL sees — the server still lists all{" "}
             {tools.length}, and manual mode can call any of them
           </p>

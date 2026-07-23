@@ -56,7 +56,7 @@ export function ManualCall({
         <button
           type="button"
           onClick={onClose}
-          className="ml-auto text-xs text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+          className="ml-auto text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
         >
           ✕ close
         </button>
@@ -64,14 +64,14 @@ export function ManualCall({
 
       {fields.length === 0 ? (
         <label className="block text-xs">
-          <span className="text-zinc-500">
+          <span className="text-zinc-500 dark:text-zinc-400">
             no schema available (hidden tool?) — raw JSON arguments
           </span>
           <textarea
             value={rawArgs}
             onChange={(e) => setRawArgs(e.target.value)}
             rows={3}
-            className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900"
+            className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono text-xs dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
           />
           {rawError && <span className="text-red-600 dark:text-red-400">{rawError}</span>}
         </label>
@@ -83,9 +83,9 @@ export function ManualCall({
                 {f.name}
                 {f.required && <span className="text-red-500">*</span>}
               </span>{" "}
-              <span className="text-zinc-400">{f.type}</span>
+              <span className="text-zinc-500 dark:text-zinc-400">{f.type}</span>
               {f.description && (
-                <span className="block truncate text-zinc-400" title={f.description}>
+                <span className="block truncate text-zinc-500 dark:text-zinc-400" title={f.description}>
                   {f.description}
                 </span>
               )}
@@ -100,7 +100,7 @@ export function ManualCall({
                 <select
                   value={String(values[f.name] ?? "")}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
-                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 >
                   <option value="">—</option>
                   {f.enumValues.map((opt) => (
@@ -115,7 +115,7 @@ export function ManualCall({
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
                   rows={3}
                   placeholder={f.defaultValue}
-                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900"
+                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 />
               ) : (
                 <input
@@ -123,7 +123,7 @@ export function ManualCall({
                   value={String(values[f.name] ?? "")}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
                   placeholder={f.defaultValue}
-                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900"
+                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 />
               )}
             </label>
@@ -134,7 +134,7 @@ export function ManualCall({
       <button
         type="submit"
         disabled={busy}
-        className="mt-2 rounded-md bg-cyan-700 px-4 py-1 text-sm font-medium text-white hover:bg-cyan-600 disabled:opacity-50"
+        className="mt-2 rounded-md bg-cyan-700 px-4 py-1 text-sm font-medium text-white hover:bg-cyan-800 disabled:opacity-50"
       >
         {calling ? "Calling…" : "Call tool"}
       </button>

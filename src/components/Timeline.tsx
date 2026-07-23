@@ -58,7 +58,7 @@ export function Timeline({
     <div className="relative h-full min-h-0">
       <div ref={scrollRef} onScroll={onScroll} className="h-full overflow-y-auto pr-1">
         {events.length === 0 ? (
-          <p className="py-16 text-center text-sm text-zinc-400">{emptyHint}</p>
+          <p className="py-16 text-center text-sm text-zinc-500 dark:text-zinc-400">{emptyHint}</p>
         ) : (
           <ol className={`space-y-2 ${present ? "pb-32" : "pb-4"}`}>
             {rows.map((row, i) => {
@@ -67,11 +67,11 @@ export function Timeline({
               return (
                 <li key={event.id} className="flex items-start gap-3">
                   <div className="w-16 shrink-0 pt-1.5 text-right">
-                    <div className="font-mono text-xs text-zinc-400">
+                    <div className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
                       {formatClock(event.t)}
                     </div>
                     {delta > 0 && (
-                      <div className="font-mono text-[10px] text-zinc-300 dark:text-zinc-600">
+                      <div className="font-mono text-[10px] text-zinc-500 dark:text-zinc-400">
                         +{(delta / 1000).toFixed(1)}s
                       </div>
                     )}

@@ -91,11 +91,12 @@ export function ReplayView({
         <button
           type="button"
           onClick={toggleRawFrames}
+          aria-pressed={rawFrames}
           title="Show raw JSON-RPC frames"
           className={`rounded-md border px-2.5 py-1 font-mono text-xs ${
             rawFrames
               ? "border-cyan-500 bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
-              : "border-zinc-300 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              : "border-zinc-300 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
           }`}
         >
           {"{ }"} Raw frames

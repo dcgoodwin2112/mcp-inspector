@@ -18,6 +18,7 @@ function Btn({
       type="button"
       onClick={onClick}
       title={title}
+      aria-label={title}
       className="rounded-md border border-zinc-300 px-2.5 py-1 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
     >
       {children}
@@ -91,17 +92,19 @@ export function ReplayControls({
           key={s}
           type="button"
           onClick={() => controller.setSpeed(s)}
+          aria-pressed={state.speed === s}
+          aria-label={`${s}x speed`}
           className={`rounded px-2 py-0.5 text-xs ${
             state.speed === s
               ? "bg-zinc-900 font-semibold text-white dark:bg-zinc-100 dark:text-zinc-900"
-              : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
           }`}
         >
           {s}×
         </button>
       ))}
 
-      <span className="ml-auto font-mono text-xs text-zinc-500">
+      <span className="ml-auto font-mono text-xs text-zinc-500 dark:text-zinc-400">
         {state.cursor}/{controller.total} · {formatClock(controller.currentT)}
       </span>
     </div>
