@@ -24,3 +24,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Presentation mode: scale the root font — Tailwind sizes are rem-based, so
+   the whole app (timeline, rail, drawer, controls) scales coherently with no
+   layout math. Narration cards get an extra bump. */
+html.presenting {
+  font-size: 130%;
+}
+html.presenting .annotation-card {
+  font-size: 1.3em;
+  line-height: 1.5;
+  padding: 1.25rem 1.5rem;
+}
