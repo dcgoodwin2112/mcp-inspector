@@ -130,8 +130,23 @@ function Blocks({ content }: { content: unknown }) {
             </div>
           );
         }
+        if (generic.type === "thinking") {
+          const think = b as unknown as { thinking?: string };
+          return (
+            <div key={i} className="rounded border-l-2 border-zinc-400 bg-zinc-50 p-1.5 dark:bg-zinc-950">
+              <span className="font-mono text-[11px] font-semibold text-zinc-500">✦ thinking</span>
+              {think.thinking ? (
+                <pre className="mt-0.5 max-h-24 overflow-y-auto whitespace-pre-wrap break-words font-mono text-[10px]">
+                  {think.thinking}
+                </pre>
+              ) : (
+                <span className="ml-1 font-mono text-[10px] text-zinc-500">(encrypted — sent back verbatim)</span>
+              )}
+            </div>
+          );
+        }
         return (
-          <pre key={i} className="max-h-24 overflow-y-auto break-all font-mono text-[10px]">
+          <pre key={i} className="max-h-24 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[10px]">
             {JSON.stringify(b, null, 1)}
           </pre>
         );

@@ -377,7 +377,7 @@ export function LiveView({
       />
 
       {/* ---- Right pane: the timeline, always visible ---- */}
-      <section className="flex min-h-0 flex-1 flex-col border-zinc-200 py-3 dark:border-zinc-800 max-lg:border-t lg:pl-3">
+      <section className="flex min-h-0 min-w-0 flex-1 flex-col border-zinc-200 py-3 dark:border-zinc-800 max-lg:border-t lg:pl-3">
         <div className={`mb-2 flex shrink-0 items-center gap-2 ${present ? "hidden" : ""}`}>
           <h2 className="text-xs font-semibold uppercase text-zinc-400">Timeline</h2>
           <button
