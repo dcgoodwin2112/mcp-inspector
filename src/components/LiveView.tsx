@@ -13,14 +13,12 @@ import { FramesDrawer } from "./FramesDrawer";
 import { CapabilityDiff } from "./CapabilityDiff";
 import { CapabilityPanel } from "./CapabilityPanel";
 import { ManualCall } from "./ManualCall";
-import { PromptCall } from "./PromptCall";
 import { ResourceAttach } from "./ResourceAttach";
 import { Timeline } from "./Timeline";
 
 type Selection =
   | { kind: "tool"; item: CapabilityItem }
   | { kind: "resource"; item: CapabilityItem }
-  | { kind: "prompt"; item: CapabilityItem }
   | null;
 
 interface Echo {
@@ -55,8 +53,8 @@ export function LiveView({
   const [busy, setBusy] = useState(false);
   const [selection, setSelectionState] = useState<Selection>(null);
   const [echo, setEcho] = useState<Echo | null>(null);
-  /** Expanded prompt awaiting "Send to agent". */
-  const [pendingPrompt, setPendingPrompt] = useState<{ name: string; text: string } | null>(null);
+  /** Prefill for the agent box's slash-command flow (panel prompt clicks). */
+  const [slashPrefill, setSlashPrefill] = useState<{ text: string; nonce: number } | null>(null);
   const [forceName, setForceName] = useState("");
   const [agentWaiting, setAgentWaiting] = useState(false);
   const [rawFrames, toggleRawFrames] = useRawFrames();
@@ -113,7 +111,6 @@ export function LiveView({
   function setSelection(sel: Selection) {
     setSelectionState(sel);
     setEcho(null);
-    setPendingPrompt(null);
   }
 
   useEffect(() => {
@@ -238,7 +235,14 @@ export function LiveView({
               waiting={agentWaiting}
               onSend={(text) => void run(() => loopRef.current!.send(text))}
               prompts={caps.prompts}
-              onSlashSelect={(item) => setSelection({ kind: "prompt", item })}
+              prefill={slashPrefill}
+              onExpandPrompt={(name, args) => sessionRef.current!.invokePrompt(name, args)}
+              onSendPrompt={(name, text) =>
+                void run(() => loopRef.current!.send(text, "prompt_invocation"))
+              }
+              completeArg={(promptName, argName, value) =>
+                sessionRef.current!.completeArgument(promptName, argName, value)
+              }
             />
             <div className="flex items-center gap-2 text-xs text-zinc-400">
               <span>Force-call by name:</span>
@@ -301,34 +305,6 @@ export function LiveView({
                 onClose={() => setSelection(null)}
               />
             )}
-            {selection?.kind === "prompt" && (
-              <PromptCall
-                prompt={selection.item}
-                busy={busy}
-                complete={(argName, value) =>
-                  sessionRef.current!.completeArgument(selection.item.name, argName, value)
-                }
-                onInvoke={(name, args) =>
-                  void run(async () => {
-                    const messages = await sessionRef.current!.invokePrompt(name, args);
-                    if (messages === null) {
-                      setEcho({ ok: false, text: "✗ expansion failed — see timeline" });
-                      setPendingPrompt(null);
-                      return;
-                    }
-                    setEcho({
-                      ok: true,
-                      text: `✓ expanded ${messages.length} message(s) — review on the timeline, then send`,
-                    });
-                    setPendingPrompt({
-                      name,
-                      text: messages.map((m) => m.content).join("\n\n"),
-                    });
-                  })
-                }
-                onClose={() => setSelection(null)}
-              />
-            )}
             {echo && (
               <p
                 className={`rounded-md px-3 py-2 text-xs ${
@@ -340,21 +316,6 @@ export function LiveView({
                 {echo.text}
               </p>
             )}
-            {pendingPrompt && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  const p = pendingPrompt;
-                  setPendingPrompt(null);
-                  setSelectionState(null);
-                  void run(() => loopRef.current!.send(p.text, "prompt_invocation"));
-                }}
-                className="rounded-md bg-amber-700 px-4 py-1.5 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
-              >
-                ▶ Send /{pendingPrompt.name} to agent
-              </button>
-            )}
 
             <CapabilityPanel
               tools={caps.tools}
@@ -362,7 +323,9 @@ export function LiveView({
               prompts={caps.prompts}
               onSelectTool={(item) => setSelection({ kind: "tool", item })}
               onSelectResource={(item) => setSelection({ kind: "resource", item })}
-              onSelectPrompt={(item) => setSelection({ kind: "prompt", item })}
+              onSelectPrompt={(item) =>
+                setSlashPrefill({ text: `/${item.name} `, nonce: Date.now() })
+              }
               selected={selection?.item.name}
             />
             <CapabilityDiff events={events} />
