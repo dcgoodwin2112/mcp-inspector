@@ -50,9 +50,14 @@ History/decisions: [mcp-inspector-handoff-plan.md](mcp-inspector-handoff-plan.md
 
 ## Workflows
 
-- **Verify**: `npm run typecheck && npm run build`; `npm run validate:fixture`.
-  No eslint. Then exercise the feature in a real browser against the DDEV site
-  (dev server: `npm run dev -- --port 3111`).
+- **Verify**: `npm test && npm run typecheck && npm run build`;
+  `npm run validate:fixture`. No eslint. Then exercise the feature in a real
+  browser against the DDEV site (dev server: `npm run dev -- --port 3111`).
+- **Unit tests** (vitest, `tests/`): cover the framework-free core — replay
+  stepping/timing, store envelope+validation, log-schema invariants, slash
+  parsing (`src/lib/slash.ts`), timeline grouping (`src/lib/timeline-rows.ts`),
+  schema-form. Components stay untested; pull new logic into `src/lib/` and
+  test it there.
 - **Golden re-cut**: drive the beats live → `⬇ Save .json` →
   `npx tsx scripts/annotate-golden.ts ~/Downloads/live-*.json` (beat matchers
   are content-based; update them if the beat structure changes).

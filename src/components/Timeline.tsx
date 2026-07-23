@@ -1,18 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { InspectorEvent, Primitive } from "@/lib/events";
+import type { InspectorEvent } from "@/lib/events";
+import { groupTimelineRows } from "@/lib/timeline-rows";
 import { formatClock } from "@/lib/ui";
 import { ActorBadge } from "./ActorBadge";
-import { EventCard, type CapabilitiesListed } from "./EventCard";
-
-interface Row {
-  event: InspectorEvent;
-  /** Templates listing folded into the preceding direct-resources card. */
-  mergedTemplates?: CapabilitiesListed;
-  /** Repeat listing of a primitive (persona switch) — rendered collapsed. */
-  compact?: boolean;
-}
+import { EventCard } from "./EventCard";
 
 /**
  * Pure rendering of a list of events — live mode and replay feed the same
@@ -32,33 +25,7 @@ export function Timeline({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [atBottom, setAtBottom] = useState(true);
 
-  // Fold each templates listing into its preceding direct-resources card and
-  // collapse repeat listings — the log keeps every event; only rendering groups.
-  const rows = useMemo(() => {
-    const seen = new Set<Primitive>();
-    const out: Row[] = [];
-    for (const e of events) {
-      if (e.type !== "capabilities.listed") {
-        out.push({ event: e });
-        continue;
-      }
-      if (e.primitive === "resource" && e.items.some((i) => i.isTemplate)) {
-        const prev = out[out.length - 1];
-        if (
-          prev?.event.type === "capabilities.listed" &&
-          prev.event.primitive === "resource" &&
-          !prev.mergedTemplates &&
-          prev.event.persona === e.persona
-        ) {
-          prev.mergedTemplates = e;
-          continue;
-        }
-      }
-      out.push({ event: e, compact: seen.has(e.primitive) });
-      seen.add(e.primitive);
-    }
-    return out;
-  }, [events]);
+  const rows = useMemo(() => groupTimelineRows(events), [events]);
 
   useEffect(() => {
     const el = scrollRef.current;

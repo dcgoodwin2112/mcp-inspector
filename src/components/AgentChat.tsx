@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CapabilityItem } from "@/lib/events";
 import type { AgentLoop } from "@/lib/agent";
-
-interface PromptArg {
-  name: string;
-  description?: string;
-  required?: boolean;
-}
+import {
+  acceptValueText,
+  computeArgState,
+  matchCommands,
+  parseSlash,
+  type PromptArg,
+} from "@/lib/slash";
 
 interface Pending {
   name: string;
@@ -69,61 +70,21 @@ export function AgentChat({
     }
   }, [prefill]);
 
-  // --- slash parsing -------------------------------------------------------
-  const slash = useMemo(() => {
-    if (!text.startsWith("/")) return null;
-    const space = text.indexOf(" ");
-    if (space === -1) return { name: text.slice(1), rest: null as string | null };
-    return { name: text.slice(1, space), rest: text.slice(space + 1) };
-  }, [text]);
+  // --- slash parsing (pure logic in @/lib/slash) ---------------------------
+  const slash = useMemo(() => parseSlash(text), [text]);
 
   const activePrompt =
     slash && slash.rest !== null ? (prompts.find((p) => p.name === slash.name) ?? null) : null;
   const argDefs = (activePrompt?.schema as PromptArg[] | undefined) ?? [];
 
   // Command picker: open until the first space is typed.
-  const cmdMatches = useMemo(() => {
-    if (!slash || slash.rest !== null) return [];
-    const q = slash.name.toLowerCase();
-    return prompts.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.name.replace(/_/g, "-").includes(q),
-    );
-  }, [slash, prompts]);
+  const cmdMatches = useMemo(() => matchCommands(slash, prompts), [slash, prompts]);
 
   // Argument state: positional or key=value tokens after the command.
   const argState = useMemo(() => {
     if (!activePrompt || slash?.rest === null || slash?.rest === undefined) return null;
-    const rest = slash.rest;
-    const tokens = rest.trim() === "" ? [] : rest.trim().split(/\s+/);
-    const typingNew = rest === "" || /\s$/.test(rest);
-    const map: Record<string, string> = {};
-    let positional = 0;
-    for (const tok of tokens) {
-      const eq = tok.indexOf("=");
-      if (eq > 0) {
-        map[tok.slice(0, eq)] = tok.slice(eq + 1);
-      } else {
-        const def = argDefs[positional];
-        if (def) map[def.name] = tok;
-        positional += 1;
-      }
-    }
-    const currentToken = typingNew ? "" : (tokens[tokens.length - 1] ?? "");
-    let currentArg: PromptArg | undefined;
-    let currentValue = currentToken;
-    const eq = currentToken.indexOf("=");
-    if (eq > 0) {
-      currentArg = argDefs.find((a) => a.name === currentToken.slice(0, eq));
-      currentValue = currentToken.slice(eq + 1);
-    } else {
-      const idx = typingNew ? tokens.length : tokens.length - 1;
-      currentArg = argDefs[Math.max(0, Math.min(idx, argDefs.length - 1))];
-    }
-    const requiredFilled = argDefs
-      .filter((a) => a.required)
-      .every((a) => (map[a.name] ?? "").trim() !== "");
-    return { map, currentArg, currentValue, requiredFilled };
-  }, [activePrompt, slash, argDefs]);
+    return computeArgState(slash.rest, argDefs);
+  }, [activePrompt, slash]);
 
   // Debounced value completion for the token being typed.
   useEffect(() => {
@@ -152,20 +113,7 @@ export function AgentChat({
   }
 
   function acceptValue(v: string) {
-    const space = text.indexOf(" ");
-    const head = text.slice(0, space + 1);
-    const rest = text.slice(space + 1);
-    let newRest: string;
-    if (rest === "" || /\s$/.test(rest)) {
-      newRest = rest + v;
-    } else {
-      const toks = rest.split(/\s+/);
-      const last = toks[toks.length - 1];
-      const eq = last.indexOf("=");
-      toks[toks.length - 1] = eq > 0 ? last.slice(0, eq + 1) + v : v;
-      newRest = toks.join(" ");
-    }
-    setText(head + newRest);
+    setText(acceptValueText(text, v));
     setValueSuggest([]);
   }
 

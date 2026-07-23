@@ -63,6 +63,7 @@ Demo operations: [DEMO-RUNBOOK.md](DEMO-RUNBOOK.md).
 ## Scripts
 
 ```bash
+npm test                                      # vitest unit tests (lib core)
 npm run typecheck
 npm run validate:fixture                      # zod-validate the authored fixture
 npx tsx scripts/annotate-golden.ts <log.json> # recorded session → annotated golden

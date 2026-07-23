@@ -1,8 +1,7 @@
 import type { CapabilityItem, InspectorEvent, Primitive } from "@/lib/events";
+import type { CapabilitiesListed } from "@/lib/timeline-rows";
 import { PRIMITIVE_STYLES } from "@/lib/ui";
 import { Markdown } from "./Markdown";
-
-export type CapabilitiesListed = Extract<InspectorEvent, { type: "capabilities.listed" }>;
 
 function CapChips({ items }: { items: CapabilityItem[] }) {
   return (
