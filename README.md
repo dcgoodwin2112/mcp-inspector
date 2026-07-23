@@ -35,18 +35,25 @@ npm run dev
 
 ## Using it
 
-- **Live**: pick a persona, Connect. Click tools/resources in the left rail to
-  call/attach; the chat bar drives agent mode ("step between hops" gates each
-  hop). Prompts are slash commands in the chat bar: `/expl` → Tab completes,
-  type args inline (value typeahead via MCP completion/complete, Tab accepts),
-  first Enter expands & previews, second Enter sends (Esc cancels). Panel
-  prompt clicks prefill the slash command. Switching personas appends to the
-  same log — that powers the capability diff. `▶ Replay recording` /
+- **Live**: pick a persona, Connect. Click a tool in the left rail for a
+  schema-generated form; click a resource to Preview (read without attaching)
+  and Attach to context. The chat bar drives agent mode ("step between hops"
+  gates each hop); model responses render as markdown. Prompts are slash
+  commands in the chat bar: `/expl` → Tab completes, type args inline (value
+  typeahead via MCP completion/complete, Tab accepts), first Enter expands &
+  previews, second Enter sends (Esc cancels). Switching personas appends to
+  the same log — that powers the capability diff. `▶ Replay recording` /
   `⬇ Save .json` on the timeline.
 - **Replay**: recording picker + play/step controls. The golden demo recording
   (`src/lib/fixtures/goldens/full-demo.json`) auto-pauses at narration cards.
 - **`{ } Raw frames`**: JSON-RPC exchanges paired by request id, hidden from
   the main timeline.
+- **`⊞ Context`**: the exact payload the next model call will send, read live
+  from the agent loop — system prompt (attached data visually delimited),
+  full conversation array, tool definitions, ~token estimates. Editable:
+  system instructions, per-resource detach, host-side tool toggles (hides
+  tools from the model only), clear conversation. Every edit is logged
+  (`context.updated` / `resource.detached` events).
 
 Keyboard: `p` presentation mode (130% scale, hidden chrome), `Esc` exit,
 `space` play/pause, `←/→` step, `Home`/`End` jump, `/` prompt commands.
