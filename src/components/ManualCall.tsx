@@ -77,30 +77,34 @@ export function ManualCall({
         </label>
       ) : (
         <div className="grid gap-2 sm:grid-cols-2">
+          {/* flex-col cells + mt-auto controls: inputs align across a grid row
+              even when only one field has a description line. */}
           {fields.map((f) => (
-            <label key={f.name} className={`block text-xs ${f.jsonText ? "sm:col-span-2" : ""}`}>
-              <span className="font-mono">
-                {f.name}
-                {f.required && <span className="text-red-500">*</span>}
-              </span>{" "}
-              <span className="text-zinc-500 dark:text-zinc-400">{f.type}</span>
-              {f.description && (
-                <span className="block truncate text-zinc-500 dark:text-zinc-400" title={f.description}>
-                  {f.description}
-                </span>
-              )}
+            <label key={f.name} className={`flex flex-col text-xs ${f.jsonText ? "sm:col-span-2" : ""}`}>
+              <span className="mb-1">
+                <span className="font-mono">
+                  {f.name}
+                  {f.required && <span className="text-red-500">*</span>}
+                </span>{" "}
+                <span className="text-zinc-500 dark:text-zinc-400">{f.type}</span>
+                {f.description && (
+                  <span className="block truncate text-zinc-500 dark:text-zinc-400" title={f.description}>
+                    {f.description}
+                  </span>
+                )}
+              </span>
               {f.type === "boolean" ? (
                 <input
                   type="checkbox"
                   checked={values[f.name] === true}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.checked }))}
-                  className="mt-1 block"
+                  className="mt-auto block"
                 />
               ) : f.enumValues ? (
                 <select
                   value={String(values[f.name] ?? "")}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
-                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
+                  className="mt-auto w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 >
                   <option value="">—</option>
                   {f.enumValues.map((opt) => (
@@ -115,7 +119,7 @@ export function ManualCall({
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
                   rows={3}
                   placeholder={f.defaultValue}
-                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
+                  className="mt-auto w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 />
               ) : (
                 <input
@@ -123,7 +127,7 @@ export function ManualCall({
                   value={String(values[f.name] ?? "")}
                   onChange={(e) => setValues((v) => ({ ...v, [f.name]: e.target.value }))}
                   placeholder={f.defaultValue}
-                  className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
+                  className="mt-auto w-full rounded border border-zinc-300 bg-white p-1.5 dark:border-zinc-700 dark:bg-zinc-900 placeholder:text-zinc-500 dark:placeholder:text-zinc-400"
                 />
               )}
             </label>
