@@ -1,5 +1,6 @@
 import type { InspectorEvent, Primitive } from "@/lib/events";
 import { PRIMITIVE_STYLES } from "@/lib/ui";
+import { Markdown } from "./Markdown";
 
 function Json({ data }: { data: unknown }) {
   // Long escaped-JSON strings render as one huge line — wrap them and cap the
@@ -175,7 +176,9 @@ export function EventCard({ event }: { event: InspectorEvent }) {
           <span className="text-xs font-semibold text-fuchsia-700 dark:text-fuchsia-400">
             model
           </span>
-          <p className="mt-0.5">{event.text}</p>
+          <div className="mt-0.5">
+            <Markdown>{event.text}</Markdown>
+          </div>
         </Card>
       );
 
