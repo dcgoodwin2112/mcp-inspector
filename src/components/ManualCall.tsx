@@ -13,11 +13,14 @@ import { coerceValues, fieldsFromSchema } from "@/lib/schema-form";
 export function ManualCall({
   tool,
   busy,
+  calling = false,
   onCall,
   onClose,
 }: {
   tool: CapabilityItem;
   busy: boolean;
+  /** True only when THIS form's call is running — busy alone just disables. */
+  calling?: boolean;
   onCall: (name: string, args: Record<string, unknown>) => void;
   onClose: () => void;
 }) {
@@ -133,7 +136,7 @@ export function ManualCall({
         disabled={busy}
         className="mt-2 rounded-md bg-cyan-700 px-4 py-1 text-sm font-medium text-white hover:bg-cyan-600 disabled:opacity-50"
       >
-        {busy ? "Calling…" : "Call tool"}
+        {calling ? "Calling…" : "Call tool"}
       </button>
     </form>
   );

@@ -77,7 +77,7 @@ function SmallBtn({
 function Blocks({ content }: { content: unknown }) {
   if (typeof content === "string") {
     return (
-      <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
+      <pre className="whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
         {content}
       </pre>
     );
@@ -90,7 +90,7 @@ function Blocks({ content }: { content: unknown }) {
           return (
             <pre
               key={i}
-              className="max-h-32 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950"
+              className="whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950"
             >
               {b.text}
             </pre>
@@ -100,7 +100,7 @@ function Blocks({ content }: { content: unknown }) {
           return (
             <div key={i} className="rounded border-l-2 border-cyan-500 bg-zinc-50 p-1.5 dark:bg-zinc-950">
               <span className="font-mono text-[11px] font-semibold">⚙ tool_use · {b.name}</span>
-              <pre className="mt-0.5 max-h-24 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[10px]">
+              <pre className="mt-0.5 whitespace-pre-wrap break-all font-mono text-[10px]">
                 {JSON.stringify(b.input, null, 1)}
               </pre>
             </div>
@@ -124,7 +124,7 @@ function Blocks({ content }: { content: unknown }) {
               <span className="font-mono text-[11px] font-semibold">
                 ↩ tool_result{generic.is_error ? " · error" : ""}
               </span>
-              <pre className="mt-0.5 max-h-24 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[10px]">
+              <pre className="mt-0.5 whitespace-pre-wrap break-all font-mono text-[10px]">
                 {generic.content?.map((c) => c.text).join("\n") ?? ""}
               </pre>
             </div>
@@ -136,7 +136,7 @@ function Blocks({ content }: { content: unknown }) {
             <div key={i} className="rounded border-l-2 border-zinc-400 bg-zinc-50 p-1.5 dark:bg-zinc-950">
               <span className="font-mono text-[11px] font-semibold text-zinc-500">✦ thinking</span>
               {think.thinking ? (
-                <pre className="mt-0.5 max-h-24 overflow-y-auto whitespace-pre-wrap break-words font-mono text-[10px]">
+                <pre className="mt-0.5 whitespace-pre-wrap break-words font-mono text-[10px]">
                   {think.thinking}
                 </pre>
               ) : (
@@ -146,7 +146,7 @@ function Blocks({ content }: { content: unknown }) {
           );
         }
         return (
-          <pre key={i} className="max-h-24 overflow-y-auto whitespace-pre-wrap break-all font-mono text-[10px]">
+          <pre key={i} className="whitespace-pre-wrap break-all font-mono text-[10px]">
             {JSON.stringify(b, null, 1)}
           </pre>
         );
@@ -233,7 +233,7 @@ export function ContextInspector({
               <span className="text-[10px] font-semibold uppercase text-zinc-400">
                 instructions{loop.systemBase !== AGENT_SYSTEM_SUMMARY ? " · edited" : ""}
               </span>
-              <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
+              <pre className="whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
                 {loop.systemBase}
               </pre>
             </div>
@@ -248,7 +248,7 @@ export function ContextInspector({
                     ✕ detach
                   </SmallBtn>
                 </span>
-                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded border-l-2 border-indigo-400 bg-indigo-50/50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-indigo-950/20">
+                <pre className="whitespace-pre-wrap break-words rounded border-l-2 border-indigo-400 bg-indigo-50/50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-indigo-950/20">
                   {a.text}
                 </pre>
               </div>

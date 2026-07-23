@@ -6,6 +6,7 @@ import type { PublicProfile } from "@/lib/profiles";
 import { EventLogStore } from "@/lib/store";
 import { LiveSession } from "@/lib/live";
 import { AgentLoop } from "@/lib/agent";
+import { useDrawerResize } from "@/hooks/useDrawerResize";
 import { useEventLog } from "@/hooks/useEventLog";
 import { isRpcEvent, useRawFrames } from "@/hooks/useRawFrames";
 import { AgentChat } from "./AgentChat";
@@ -21,6 +22,9 @@ type Selection =
   | { kind: "tool"; item: CapabilityItem }
   | { kind: "resource"; item: CapabilityItem }
   | null;
+
+/** What is currently running — so only the initiating button changes label. */
+type BusySource = "connect" | "agent" | "manual" | "resource";
 
 interface Echo {
   ok: boolean;
@@ -51,7 +55,8 @@ export function LiveView({
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [persona, setPersona] = useState("read-only");
-  const [busy, setBusy] = useState(false);
+  const [busySource, setBusySource] = useState<BusySource | null>(null);
+  const busy = busySource !== null;
   const [selection, setSelectionState] = useState<Selection>(null);
   const [echo, setEcho] = useState<Echo | null>(null);
   /** Prefill for the agent box's slash-command flow (panel prompt clicks). */
@@ -64,6 +69,7 @@ export function LiveView({
   /** Stacked-layout rail height in px; null = the 50% default. */
   const [railHeight, setRailHeight] = useState<number | null>(null);
   const [dragging, setDragging] = useState(false);
+  const drawer = useDrawerResize();
   const asideRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -156,13 +162,13 @@ export function LiveView({
     return [...seen.values()];
   }, [events]);
 
-  async function run(fn: () => Promise<void>) {
+  async function run(source: BusySource, fn: () => Promise<void>) {
     if (busy) return;
-    setBusy(true);
+    setBusySource(source);
     try {
       await fn();
     } finally {
-      setBusy(false);
+      setBusySource(null);
     }
   }
 
@@ -170,14 +176,14 @@ export function LiveView({
     setPersona(key);
     if (connected && profile && key !== sessionRef.current!.persona) {
       setSelection(null);
-      void run(() => sessionRef.current!.switchPersona(profile, key));
+      void run("connect", () => sessionRef.current!.switchPersona(profile, key));
     }
   }
 
   function connect() {
     if (!profile) return;
     setSelection(null);
-    void run(() => sessionRef.current!.connect(profile, persona));
+    void run("connect", () => sessionRef.current!.connect(profile, persona));
   }
 
   function firstText(content: Array<{ type: string; text?: string }>): string {
@@ -186,7 +192,7 @@ export function LiveView({
 
   return (
     <div
-      className={`flex min-h-0 flex-1 flex-col lg:flex-row ${dragging ? "select-none" : ""}`}
+      className={`flex min-h-0 flex-1 flex-col lg:flex-row ${dragging || drawer.dragging ? "select-none" : ""}`}
       style={
         {
           "--rail-w": `${railWidth}px`,
@@ -233,7 +239,11 @@ export function LiveView({
                 disabled={busy}
                 className="rounded-md bg-zinc-900 px-4 py-1 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
               >
-                {busy && !connected ? "Connecting…" : connected ? "New session" : "Connect"}
+                {busySource === "connect" && !connected
+                  ? "Connecting…"
+                  : connected
+                    ? "New session"
+                    : "Connect"}
               </button>
             </>
           )}
@@ -245,12 +255,12 @@ export function LiveView({
               loop={loopRef.current!}
               busy={busy}
               waiting={agentWaiting}
-              onSend={(text) => void run(() => loopRef.current!.send(text))}
+              onSend={(text) => void run("agent", () => loopRef.current!.send(text))}
               prompts={caps.prompts}
               prefill={slashPrefill}
               onExpandPrompt={(name, args) => sessionRef.current!.invokePrompt(name, args)}
               onSendPrompt={(name, text) =>
-                void run(() => loopRef.current!.send(text, "prompt_invocation"))
+                void run("agent", () => loopRef.current!.send(text, "prompt_invocation"))
               }
               completeArg={(promptName, argName, value) =>
                 sessionRef.current!.completeArgument(promptName, argName, value)
@@ -281,8 +291,9 @@ export function LiveView({
               <ManualCall
                 tool={selection.item}
                 busy={busy}
+                calling={busySource === "manual"}
                 onCall={(name, args) =>
-                  void run(async () => {
+                  void run("manual", async () => {
                     const out = await sessionRef.current!.callTool(name, args);
                     setEcho(
                       out.isError
@@ -304,7 +315,7 @@ export function LiveView({
                 attached={attachedList}
                 onPreview={(uri) => sessionRef.current!.readResource(uri)}
                 onAttach={(uri, name, previewed) =>
-                  void run(async () => {
+                  void run("resource", async () => {
                     if (previewed) {
                       sessionRef.current!.attachFromRead(uri, name, previewed);
                       setEcho({ ok: true, text: `✓ attached ${uri} — context snapshot on the timeline` });
@@ -447,15 +458,31 @@ export function LiveView({
             emptyHint="Pick a persona and press Connect — the handshake and capability lists will stream in here."
           />
         </div>
-        {contextOpen ? (
-          <div className="h-72 shrink-0 pt-2">
-            <ContextInspector loop={loopRef.current!} session={sessionRef.current!} busy={busy} />
-          </div>
-        ) : rawFrames ? (
-          <div className="h-64 shrink-0 pt-2">
-            <FramesDrawer events={events} />
-          </div>
-        ) : null}
+        {(contextOpen || rawFrames) && (
+          <>
+            <div
+              onPointerDown={drawer.startDrag}
+              onDoubleClick={drawer.reset}
+              title="Drag to resize · double-click to reset"
+              className={`mt-2 h-1 w-full shrink-0 cursor-row-resize rounded-full ${
+                drawer.dragging
+                  ? "bg-cyan-500"
+                  : "bg-zinc-200 hover:bg-cyan-400 dark:bg-zinc-800 dark:hover:bg-cyan-600"
+              }`}
+            />
+            <div style={{ height: drawer.height }} className="shrink-0 pt-1">
+              {contextOpen ? (
+                <ContextInspector
+                  loop={loopRef.current!}
+                  session={sessionRef.current!}
+                  busy={busy}
+                />
+              ) : (
+                <FramesDrawer events={events} />
+              )}
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

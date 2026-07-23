@@ -14,9 +14,12 @@ import { EventCard } from "./EventCard";
 export function Timeline({
   events,
   emptyHint = "No events yet.",
+  jumpNonce,
 }: {
   events: InspectorEvent[];
   emptyHint?: string;
+  /** Increment to force-scroll to the tail (explicit seek/step navigation). */
+  jumpNonce?: number;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [atBottom, setAtBottom] = useState(true);
@@ -25,6 +28,13 @@ export function Timeline({
     const el = scrollRef.current;
     if (el && atBottom) el.scrollTop = el.scrollHeight;
   }, [events.length, atBottom]);
+
+  useEffect(() => {
+    if (jumpNonce === undefined) return;
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+    setAtBottom(true);
+  }, [jumpNonce]);
 
   function onScroll() {
     const el = scrollRef.current;

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { EventLog } from "@/lib/events";
 import { RECORDINGS } from "@/lib/fixtures";
+import { useDrawerResize } from "@/hooks/useDrawerResize";
 import { useReplay } from "@/hooks/useReplay";
 import { isRpcEvent, useRawFrames } from "@/hooks/useRawFrames";
 import { FramesDrawer } from "./FramesDrawer";
@@ -23,10 +24,14 @@ export function ReplayView({
       : (RECORDINGS.find((r) => r.id === selected)?.log ?? propLog);
   const { controller, state } = useReplay(log);
   const [rawFrames, toggleRawFrames] = useRawFrames();
+  const drawer = useDrawerResize();
 
   const visible = useMemo(() => log.events.slice(0, state.cursor), [log, state.cursor]);
   const timelineEvents = useMemo(() => visible.filter((e) => !isRpcEvent(e)), [visible]);
   const skipEvent = rawFrames ? undefined : isRpcEvent;
+  /** Bumped on explicit navigation so the timeline follows the seek. */
+  const [jumpNonce, setJumpNonce] = useState(0);
+  const onNavigate = () => setJumpNonce((n) => n + 1);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -40,15 +45,19 @@ export function ReplayView({
           break;
         case "ArrowRight":
           controller.stepForward(skipEvent);
+          setJumpNonce((n) => n + 1);
           break;
         case "ArrowLeft":
           controller.stepBack(skipEvent);
+          setJumpNonce((n) => n + 1);
           break;
         case "Home":
           controller.restart();
+          setJumpNonce((n) => n + 1);
           break;
         case "End":
           controller.seekEnd();
+          setJumpNonce((n) => n + 1);
           break;
       }
     }
@@ -57,10 +66,10 @@ export function ReplayView({
   }, [controller, skipEvent]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className={`flex min-h-0 flex-1 flex-col ${drawer.dragging ? "select-none" : ""}`}>
       {present ? (
         <div className="fixed bottom-4 left-1/2 z-20 -translate-x-1/2 rounded-full border border-zinc-300 bg-white/85 px-4 py-2 opacity-60 shadow-lg backdrop-blur transition-opacity hover:opacity-100 dark:border-zinc-700 dark:bg-zinc-900/85">
-          <ReplayControls controller={controller} state={state} skipEvent={skipEvent} />
+          <ReplayControls controller={controller} state={state} skipEvent={skipEvent} onNavigate={onNavigate} />
         </div>
       ) : (
       <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-zinc-200 py-2.5 dark:border-zinc-800">
@@ -77,7 +86,7 @@ export function ReplayView({
           ))}
         </select>
         <div className="flex-1">
-          <ReplayControls controller={controller} state={state} skipEvent={skipEvent} />
+          <ReplayControls controller={controller} state={state} skipEvent={skipEvent} onNavigate={onNavigate} />
         </div>
         <button
           type="button"
@@ -94,12 +103,28 @@ export function ReplayView({
       </div>
       )}
       <div className={`min-h-0 flex-1 pt-3 ${present ? "mx-auto w-full max-w-4xl" : ""}`}>
-        <Timeline events={timelineEvents} emptyHint="Press ▶ (or space) to start the replay." />
+        <Timeline
+          events={timelineEvents}
+          emptyHint="Press ▶ (or space) to start the replay."
+          jumpNonce={jumpNonce}
+        />
       </div>
       {rawFrames && (
-        <div className="h-64 shrink-0 pt-2">
-          <FramesDrawer events={visible} />
-        </div>
+        <>
+          <div
+            onPointerDown={drawer.startDrag}
+            onDoubleClick={drawer.reset}
+            title="Drag to resize · double-click to reset"
+            className={`mt-2 h-1 w-full shrink-0 cursor-row-resize rounded-full ${
+              drawer.dragging
+                ? "bg-cyan-500"
+                : "bg-zinc-200 hover:bg-cyan-400 dark:bg-zinc-800 dark:hover:bg-cyan-600"
+            }`}
+          />
+          <div style={{ height: drawer.height }} className="shrink-0 pt-1">
+            <FramesDrawer events={visible} />
+          </div>
+        </>
       )}
     </div>
   );

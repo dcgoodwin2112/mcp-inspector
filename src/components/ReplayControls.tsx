@@ -29,17 +29,32 @@ export function ReplayControls({
   controller,
   state,
   skipEvent,
+  onNavigate,
 }: {
   controller: ReplayController;
   state: ReplayState;
   skipEvent?: (e: import("@/lib/events").InspectorEvent) => boolean;
+  /** Called after explicit seeks/steps so the timeline can follow. */
+  onNavigate?: () => void;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Btn onClick={() => controller.restart()} title="Restart (Home)">
+      <Btn
+        onClick={() => {
+          controller.restart();
+          onNavigate?.();
+        }}
+        title="Restart (Home)"
+      >
         ⏮
       </Btn>
-      <Btn onClick={() => controller.stepBack(skipEvent)} title="Step back (←)">
+      <Btn
+        onClick={() => {
+          controller.stepBack(skipEvent);
+          onNavigate?.();
+        }}
+        title="Step back (←)"
+      >
         ◂
       </Btn>
       <button
@@ -50,10 +65,22 @@ export function ReplayControls({
       >
         {state.playing ? "⏸ Pause" : "▶ Play"}
       </button>
-      <Btn onClick={() => controller.stepForward(skipEvent)} title="Step forward (→)">
+      <Btn
+        onClick={() => {
+          controller.stepForward(skipEvent);
+          onNavigate?.();
+        }}
+        title="Step forward (→)"
+      >
         ▸
       </Btn>
-      <Btn onClick={() => controller.seekEnd()} title="Skip to end (End)">
+      <Btn
+        onClick={() => {
+          controller.seekEnd();
+          onNavigate?.();
+        }}
+        title="Skip to end (End)"
+      >
         ⏭
       </Btn>
 
