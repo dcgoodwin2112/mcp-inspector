@@ -1,6 +1,26 @@
-import type { InspectorEvent, Primitive } from "@/lib/events";
+import type { CapabilityItem, InspectorEvent, Primitive } from "@/lib/events";
 import { PRIMITIVE_STYLES } from "@/lib/ui";
 import { Markdown } from "./Markdown";
+
+export type CapabilitiesListed = Extract<InspectorEvent, { type: "capabilities.listed" }>;
+
+function CapChips({ items }: { items: CapabilityItem[] }) {
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1.5">
+      {items.map((item) => (
+        <span
+          key={item.name}
+          className={`rounded border border-zinc-200 px-1.5 py-0.5 font-mono text-xs dark:border-zinc-700 ${
+            item.isTemplate ? "italic" : ""
+          }`}
+          title={item.description}
+        >
+          {item.name}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function Json({ data }: { data: unknown }) {
   // Long escaped-JSON strings render as one huge line — wrap them and cap the
@@ -62,7 +82,17 @@ function HttpStatus({ status }: { status: number }) {
   );
 }
 
-export function EventCard({ event }: { event: InspectorEvent }) {
+export function EventCard({
+  event,
+  mergedTemplates,
+  compact = false,
+}: {
+  event: InspectorEvent;
+  /** For a direct-resources listing: the templates listing folded into it. */
+  mergedTemplates?: CapabilitiesListed;
+  /** Repeat listing (persona switch) — render as a collapsed summary. */
+  compact?: boolean;
+}) {
   switch (event.type) {
     case "session.started":
       return (
@@ -127,26 +157,40 @@ export function EventCard({ event }: { event: InspectorEvent }) {
 
     case "capabilities.listed": {
       const s = PRIMITIVE_STYLES[event.primitive];
+      const items = mergedTemplates ? [...event.items, ...mergedTemplates.items] : event.items;
+      const title = (
+        <>
+          <span className="font-medium">
+            {items.length} {s.label}
+            {items.length === 1 ? "" : "s"} listed
+          </span>{" "}
+          <span className="text-xs text-zinc-500">
+            persona: {event.persona}
+            {mergedTemplates && (
+              <>
+                {" "}
+                · {event.items.length} direct + {mergedTemplates.items.length} templates
+              </>
+            )}
+          </span>
+        </>
+      );
+      if (compact) {
+        return (
+          <Card primitive={event.primitive}>
+            <details>
+              <summary className="cursor-pointer select-none">
+                {title} <span className="text-xs text-zinc-400">· re-listed</span>
+              </summary>
+              <CapChips items={items} />
+            </details>
+          </Card>
+        );
+      }
       return (
         <Card primitive={event.primitive}>
-          <span className="font-medium">
-            {event.items.length} {s.label}
-            {event.items.length === 1 ? "" : "s"} listed
-          </span>{" "}
-          <span className="text-xs text-zinc-500">persona: {event.persona}</span>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {event.items.map((item) => (
-              <span
-                key={item.name}
-                className={`rounded border border-zinc-200 px-1.5 py-0.5 font-mono text-xs dark:border-zinc-700 ${
-                  item.isTemplate ? "italic" : ""
-                }`}
-                title={item.description}
-              >
-                {item.name}
-              </span>
-            ))}
-          </div>
+          {title}
+          <CapChips items={items} />
         </Card>
       );
     }

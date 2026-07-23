@@ -266,26 +266,30 @@ export function LiveView({
                 sessionRef.current!.completeArgument(promptName, argName, value)
               }
             />
-            <div className="flex items-center gap-2 text-xs text-zinc-400">
-              <span>Force-call by name:</span>
-              <input
-                type="text"
-                value={forceName}
-                onChange={(e) => setForceName(e.target.value)}
-                placeholder="update_dataset"
-                className="min-w-0 flex-1 rounded border border-zinc-300 bg-white px-1.5 py-0.5 font-mono dark:border-zinc-700 dark:bg-zinc-900"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  forceName.trim() &&
-                  setSelection({ kind: "tool", item: { name: forceName.trim() } })
-                }
-                className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-              >
-                open form
-              </button>
-            </div>
+            <details className="text-xs text-zinc-400">
+              <summary className="cursor-pointer select-none hover:text-zinc-600 dark:hover:text-zinc-300">
+                force-call a hidden tool…
+              </summary>
+              <div className="mt-1.5 flex items-center gap-2">
+                <input
+                  type="text"
+                  value={forceName}
+                  onChange={(e) => setForceName(e.target.value)}
+                  placeholder="update_dataset"
+                  className="min-w-0 flex-1 rounded border border-zinc-300 bg-white px-1.5 py-0.5 font-mono dark:border-zinc-700 dark:bg-zinc-900"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    forceName.trim() &&
+                    setSelection({ kind: "tool", item: { name: forceName.trim() } })
+                  }
+                  className="rounded border border-zinc-300 px-2 py-0.5 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                >
+                  open form
+                </button>
+              </div>
+            </details>
 
             {selection?.kind === "tool" && (
               <ManualCall

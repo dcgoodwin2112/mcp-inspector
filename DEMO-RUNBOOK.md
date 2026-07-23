@@ -29,7 +29,7 @@ Replay tab — every beat has a narration card; play to it, or step (`←/→`).
 | 4 | Prompts (user-controlled) | `/expl` Tab → `ce` Tab → Enter (preview) → Enter (send) | expansion shown pre-send; completion frames in drawer |
 | 5 | Resources (app-controlled) | Panel → `dkan://dataset/{id}` → paste id → Preview, then Attach to context | context snapshot; open `⊞ Context` to show it sitting in the system prompt |
 | 6 | Permissions | Click Editor pill | diff: 25 → 38, +13 write tools |
-| 7 | Denial | Click Read-only; chat: "Change the title of …" ; then Force-call `update_dataset`, args `{"identifier":"x","metadata":"{}"}` | model has no tool; forced call → HTTP 403 / -32002 |
+| 7 | Denial | Click Read-only; chat: "Change the title of …" ; then open "force-call a hidden tool…" → `update_dataset`, args `{"identifier":"x","metadata":"{}"}` | model has no tool; forced call → HTTP 403 / -32002 |
 | 8 | Protocol | Toggle `{ } Raw frames` | initialize handshake, paired frames, the 403 |
 
 **Optional flourish (time permitting):** open `⊞ Context`, edit the system
