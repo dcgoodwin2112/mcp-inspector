@@ -35,17 +35,23 @@ npm run dev
 
 ## Using it
 
-- **Live**: pick a persona, Connect. Click tools/prompts/resources in the left
-  rail to call/expand/attach; chat bar drives agent mode ("step between hops"
-  gates each hop). Switching personas appends to the same log — that powers
-  the capability diff. `▶ Replay recording` / `⬇ Save .json` on the timeline.
+- **Live**: pick a persona, Connect. Click tools/resources in the left rail to
+  call/attach; the chat bar drives agent mode ("step between hops" gates each
+  hop). Prompts are slash commands in the chat bar: `/expl` → Tab completes,
+  type args inline (value typeahead via MCP completion/complete, Tab accepts),
+  first Enter expands & previews, second Enter sends (Esc cancels). Panel
+  prompt clicks prefill the slash command. Switching personas appends to the
+  same log — that powers the capability diff. `▶ Replay recording` /
+  `⬇ Save .json` on the timeline.
 - **Replay**: recording picker + play/step controls. The golden demo recording
   (`src/lib/fixtures/goldens/full-demo.json`) auto-pauses at narration cards.
 - **`{ } Raw frames`**: JSON-RPC exchanges paired by request id, hidden from
   the main timeline.
 
 Keyboard: `p` presentation mode (130% scale, hidden chrome), `Esc` exit,
-`space` play/pause, `←/→` step, `Home`/`End` jump.
+`space` play/pause, `←/→` step, `Home`/`End` jump, `/` prompt commands.
+
+Demo operations: [DEMO-RUNBOOK.md](DEMO-RUNBOOK.md).
 
 ## Scripts
 

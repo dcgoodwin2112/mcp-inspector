@@ -48,7 +48,7 @@ const BEATS: Beat[] = [
     match: (e, seen) => e.type === "turn.started" && (seen["turn.started"] ?? 0) === 0,
   },
   {
-    text: "Beat 4 — Prompts are user-controlled. /explore_dataset expands server-side, and the expansion is shown BEFORE anything is sent to a model.",
+    text: "Beat 4 — Prompts are user-controlled. Typed as a slash command (MCP completion fills the dataset id — watch the completion/complete frames), expanded server-side, previewed BEFORE sending — then the model runs the prompt's recipe.",
     pause: true,
     match: (e) => e.type === "prompt.invoked",
   },
