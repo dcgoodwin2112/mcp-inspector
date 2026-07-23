@@ -234,6 +234,8 @@ export function LiveView({
               busy={busy}
               waiting={agentWaiting}
               onSend={(text) => void run(() => loopRef.current!.send(text))}
+              prompts={caps.prompts}
+              onSlashSelect={(item) => setSelection({ kind: "prompt", item })}
             />
             <div className="flex items-center gap-2 text-xs text-zinc-400">
               <span>Force-call by name:</span>
@@ -300,6 +302,9 @@ export function LiveView({
               <PromptCall
                 prompt={selection.item}
                 busy={busy}
+                complete={(argName, value) =>
+                  sessionRef.current!.completeArgument(selection.item.name, argName, value)
+                }
                 onInvoke={(name, args) =>
                   void run(async () => {
                     const n = await sessionRef.current!.invokePrompt(name, args);

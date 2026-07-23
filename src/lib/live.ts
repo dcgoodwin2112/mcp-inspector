@@ -205,6 +205,19 @@ export class LiveSession {
     return messages.length;
   }
 
+  /**
+   * MCP completion/complete for a prompt argument (e.g. dataset_id).
+   * Logged like any other exchange — completions are protocol calls too and
+   * show up in the raw-frames drawer.
+   */
+  async completeArgument(promptName: string, argName: string, value: string): Promise<string[]> {
+    const res = await this.call({ kind: "completion/complete", promptName, argName, value });
+    const result = rpcResult(res?.responseFrame);
+    if (!res?.ok || !result) return [];
+    const completion = result.completion as { values?: string[] } | undefined;
+    return completion?.values ?? [];
+  }
+
   /** Resource read + attach: app fetches, user attaches — never the model.
    *  Returns a small summary for the inline echo, or null on failure. */
   async attachResource(

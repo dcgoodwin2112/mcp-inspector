@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { CapabilityItem } from "@/lib/events";
 
 interface PromptArg {
@@ -9,20 +9,44 @@ interface PromptArg {
   required?: boolean;
 }
 
-/** User-controlled primitive: argument form → expansion shown before send. */
+/** User-controlled primitive: argument form → expansion shown before send.
+ *  Arguments get MCP completion/complete typeahead when `complete` is given. */
 export function PromptCall({
   prompt,
   busy,
   onInvoke,
   onClose,
+  complete,
 }: {
   prompt: CapabilityItem;
   busy: boolean;
   onInvoke: (name: string, args: Record<string, string>) => void;
   onClose: () => void;
+  complete?: (argName: string, value: string) => Promise<string[]>;
 }) {
   const args = (prompt.schema as PromptArg[] | undefined) ?? [];
   const [values, setValues] = useState<Record<string, string>>({});
+  const [suggest, setSuggest] = useState<{ arg: string; values: string[] } | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function onArgChange(argName: string, value: string) {
+    setValues((v) => ({ ...v, [argName]: value }));
+    if (!complete) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (value.trim() === "") {
+      setSuggest(null);
+      return;
+    }
+    debounceRef.current = setTimeout(async () => {
+      const found = await complete(argName, value);
+      setSuggest(found.length > 0 ? { arg: argName, values: found.slice(0, 8) } : null);
+    }, 300);
+  }
+
+  function pick(argName: string, value: string) {
+    setValues((v) => ({ ...v, [argName]: value }));
+    setSuggest(null);
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -55,7 +79,7 @@ export function PromptCall({
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {args.map((a) => (
-          <label key={a.name} className="block text-xs">
+          <label key={a.name} className="relative block text-xs">
             <span className="font-mono">
               {a.name}
               {a.required && <span className="text-red-500">*</span>}
@@ -64,9 +88,26 @@ export function PromptCall({
             <input
               type="text"
               value={values[a.name] ?? ""}
-              onChange={(e) => setValues((v) => ({ ...v, [a.name]: e.target.value }))}
+              onChange={(e) => onArgChange(a.name, e.target.value)}
+              onBlur={() => setTimeout(() => setSuggest(null), 150)}
+              autoComplete="off"
               className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono dark:border-zinc-700 dark:bg-zinc-900"
             />
+            {suggest?.arg === a.name && (
+              <ul className="absolute left-0 top-full z-20 mt-0.5 w-full overflow-hidden rounded-md border border-zinc-300 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+                {suggest.values.map((v) => (
+                  <li key={v}>
+                    <button
+                      type="button"
+                      onMouseDown={() => pick(a.name, v)}
+                      className="w-full truncate px-2 py-1 text-left font-mono hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                    >
+                      {v}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
           </label>
         ))}
         {args.length === 0 && <p className="text-xs text-zinc-400">no arguments</p>}
