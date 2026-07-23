@@ -1,7 +1,7 @@
 "use client";
 
 import type { AgentLoop, ContentBlock } from "@/lib/agent";
-import type { LiveSession } from "@/lib/live";
+import { AGENT_SYSTEM_SUMMARY, type LiveSession } from "@/lib/live";
 
 /**
  * Read-only view of the EXACT context the next model call will send — read
@@ -111,6 +111,7 @@ export function ContextInspector({
   session: LiveSession;
 }) {
   const system = loop.system;
+  const baseSystem = AGENT_SYSTEM_SUMMARY;
   const messages = loop.getMessages();
   const tools = session.toolItems;
   const attached = session.attached;
@@ -132,15 +133,26 @@ export function ContextInspector({
       </div>
       <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-2 py-1.5">
         <Section title="System prompt" size={tok(system.length)} open>
-          <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
-            {system}
-          </pre>
-          {attached.length > 0 && (
-            <p className="mt-1 text-[10px] text-zinc-400">
-              includes {attached.length} attached resource{attached.length === 1 ? "" : "s"}:{" "}
-              {attached.map((a) => a.uri).join(", ")}
-            </p>
-          )}
+          <div>
+            <span className="text-[10px] font-semibold uppercase text-zinc-400">
+              instructions
+            </span>
+            <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
+              {baseSystem}
+            </pre>
+          </div>
+          {attached
+            .filter((a) => a.text)
+            .map((a) => (
+              <div key={a.uri} className="mt-1.5">
+                <span className="text-[10px] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
+                  attached data · {a.uri}
+                </span>
+                <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded border-l-2 border-indigo-400 bg-indigo-50/50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-indigo-950/20">
+                  {a.text}
+                </pre>
+              </div>
+            ))}
         </Section>
 
         <Section

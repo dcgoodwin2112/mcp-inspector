@@ -35,7 +35,8 @@ const LIST_PRIMITIVE: Record<ListKind, Primitive> = {
   "prompts/list": "prompt",
 };
 
-/** Cap stored resource text — redaction/size control at write time. */
+/** Cap resource text in LOG EVENTS only (recording-size control). The model
+ *  always receives the full text. */
 const RESOURCE_TEXT_CAP = 2000;
 
 export const AGENT_SYSTEM_SUMMARY =
@@ -239,10 +240,15 @@ export class LiveSession {
     const contents = ((result.contents as Array<Record<string, unknown>>) ?? []).map((c) => ({
       uri: String(c.uri ?? uri),
       mimeType: c.mimeType as string | undefined,
+      text: c.text as string | undefined,
+    }));
+    // Log a size-capped copy; the returned (and attached) contents stay full.
+    const loggedContents = contents.map((c) => ({
+      ...c,
       text:
         typeof c.text === "string" && c.text.length > RESOURCE_TEXT_CAP
-          ? `${c.text.slice(0, RESOURCE_TEXT_CAP)}… [truncated at write time]`
-          : (c.text as string | undefined),
+          ? `${c.text.slice(0, RESOURCE_TEXT_CAP)}… [truncated in log; model receives full text]`
+          : c.text,
     }));
     this.store.append("app", {
       type: "resource.read",
@@ -250,7 +256,7 @@ export class LiveSession {
       requestId,
       uri,
       latencyMs: res.latencyMs ?? 0,
-      contents,
+      contents: loggedContents,
     });
     return { contents, latencyMs: res.latencyMs };
   }

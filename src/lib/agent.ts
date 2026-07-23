@@ -58,7 +58,7 @@ export class AgentLoop {
   get system(): string {
     const attachments = this.session.attached
       .filter((a) => a.text)
-      .map((a) => `\n\nAttached resource ${a.uri} (${a.name}):\n${a.text}`)
+      .map((a) => `\n\n=== Attached resource: ${a.uri} (${a.name}) ===\n${a.text}`)
       .join("");
     return AGENT_SYSTEM_SUMMARY + attachments;
   }
