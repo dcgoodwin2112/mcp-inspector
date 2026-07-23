@@ -1,13 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import type { AgentLoop, ContentBlock } from "@/lib/agent";
 import { AGENT_SYSTEM_SUMMARY, type LiveSession } from "@/lib/live";
 
 /**
- * Read-only view of the EXACT context the next model call will send — read
- * live from the agent loop (system prompt incl. attached resources, the full
- * conversation array, tool definitions), never from a parallel copy. The
- * answer to "what does the model actually see?".
+ * The EXACT context the next model call will send — read live from the agent
+ * loop, never a parallel copy. Phase 2 makes it editable: system instructions,
+ * resource detach, host-side tool toggles, and clearing history. Every edit
+ * is appended to the event log (context.updated / resource.detached).
  */
 
 /** Rough size estimate: ~4 chars per token, labeled as an estimate in the UI. */
@@ -19,21 +20,57 @@ function Section({
   title,
   size,
   children,
+  action,
   open = false,
 }: {
   title: string;
   size: string;
   children: React.ReactNode;
+  action?: React.ReactNode;
   open?: boolean;
 }) {
   return (
     <details open={open} className="rounded border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
       <summary className="flex cursor-pointer select-none items-center gap-2 px-2 py-1.5 text-xs">
         <span className="font-semibold">{title}</span>
-        <span className="ml-auto font-mono text-[10px] text-zinc-400">{size}</span>
+        <span className="ml-auto flex items-center gap-2">
+          {action}
+          <span className="font-mono text-[10px] text-zinc-400">{size}</span>
+        </span>
       </summary>
       <div className="border-t border-zinc-100 px-2 py-1.5 dark:border-zinc-800">{children}</div>
     </details>
+  );
+}
+
+function SmallBtn({
+  onClick,
+  disabled,
+  children,
+  tone = "neutral",
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+  tone?: "neutral" | "danger";
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={(e) => {
+        e.preventDefault(); // keep the <summary> from toggling
+        e.stopPropagation();
+        onClick();
+      }}
+      className={`rounded border px-1.5 py-0.5 text-[10px] disabled:opacity-40 ${
+        tone === "danger"
+          ? "border-red-300 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950/40"
+          : "border-zinc-300 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -106,19 +143,23 @@ function Blocks({ content }: { content: unknown }) {
 export function ContextInspector({
   loop,
   session,
+  busy = false,
 }: {
   loop: AgentLoop;
   session: LiveSession;
+  busy?: boolean;
 }) {
+  const [editingSystem, setEditingSystem] = useState<string | null>(null);
+
   const system = loop.system;
-  const baseSystem = AGENT_SYSTEM_SUMMARY;
   const messages = loop.getMessages();
   const tools = session.toolItems;
+  const activeTools = session.effectiveTools;
   const attached = session.attached;
 
   const messagesChars = JSON.stringify(messages).length;
   const toolsChars = JSON.stringify(
-    tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.schema })),
+    activeTools.map((t) => ({ name: t.name, description: t.description, input_schema: t.schema })),
   ).length;
   const totalChars = system.length + messagesChars + toolsChars;
 
@@ -132,21 +173,65 @@ export function ContextInspector({
         <span className="ml-auto font-mono text-[10px] text-zinc-400">total {tok(totalChars)}</span>
       </div>
       <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-2 py-1.5">
-        <Section title="System prompt" size={tok(system.length)} open>
-          <div>
-            <span className="text-[10px] font-semibold uppercase text-zinc-400">
-              instructions
-            </span>
-            <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
-              {baseSystem}
-            </pre>
-          </div>
+        <Section
+          title="System prompt"
+          size={tok(system.length)}
+          open
+          action={
+            editingSystem === null ? (
+              <SmallBtn onClick={() => setEditingSystem(loop.systemBase)} disabled={busy}>
+                ✎ edit
+              </SmallBtn>
+            ) : undefined
+          }
+        >
+          {editingSystem !== null ? (
+            <div>
+              <textarea
+                value={editingSystem}
+                onChange={(e) => setEditingSystem(e.target.value)}
+                rows={4}
+                className="w-full rounded border border-zinc-300 bg-white p-1.5 font-mono text-[11px] leading-relaxed dark:border-zinc-700 dark:bg-zinc-950"
+              />
+              <div className="mt-1 flex gap-1.5">
+                <SmallBtn
+                  onClick={() => {
+                    loop.setSystemBase(editingSystem);
+                    setEditingSystem(null);
+                  }}
+                >
+                  save
+                </SmallBtn>
+                <SmallBtn
+                  onClick={() => {
+                    loop.setSystemBase(AGENT_SYSTEM_SUMMARY);
+                    setEditingSystem(null);
+                  }}
+                >
+                  reset to default
+                </SmallBtn>
+                <SmallBtn onClick={() => setEditingSystem(null)}>cancel</SmallBtn>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <span className="text-[10px] font-semibold uppercase text-zinc-400">
+                instructions{loop.systemBase !== AGENT_SYSTEM_SUMMARY ? " · edited" : ""}
+              </span>
+              <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-zinc-950">
+                {loop.systemBase}
+              </pre>
+            </div>
+          )}
           {attached
             .filter((a) => a.text)
             .map((a) => (
               <div key={a.uri} className="mt-1.5">
-                <span className="text-[10px] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
+                <span className="flex items-center gap-2 text-[10px] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                   attached data · {a.uri}
+                  <SmallBtn onClick={() => session.detachResource(a.uri)} disabled={busy} tone="danger">
+                    ✕ detach
+                  </SmallBtn>
                 </span>
                 <pre className="max-h-40 overflow-y-auto whitespace-pre-wrap break-words rounded border-l-2 border-indigo-400 bg-indigo-50/50 p-1.5 font-mono text-[11px] leading-relaxed dark:bg-indigo-950/20">
                   {a.text}
@@ -159,6 +244,13 @@ export function ContextInspector({
           title={`Conversation (${messages.length} message${messages.length === 1 ? "" : "s"})`}
           size={tok(messagesChars)}
           open={messages.length > 0}
+          action={
+            messages.length > 0 ? (
+              <SmallBtn onClick={() => loop.clearConversation()} disabled={busy} tone="danger">
+                clear
+              </SmallBtn>
+            ) : undefined
+          }
         >
           {messages.length === 0 ? (
             <p className="text-[11px] text-zinc-400">
@@ -184,20 +276,34 @@ export function ContextInspector({
           )}
         </Section>
 
-        <Section title={`Tool definitions (${tools.length})`} size={tok(toolsChars)}>
+        <Section
+          title={`Tool definitions (${activeTools.length} of ${tools.length} active)`}
+          size={tok(toolsChars)}
+        >
           <div className="flex flex-wrap gap-1">
-            {tools.map((t) => (
-              <span
-                key={t.name}
-                title={t.description}
-                className="rounded border border-zinc-200 px-1.5 py-0.5 font-mono text-[11px] dark:border-zinc-700"
-              >
-                {t.name}
-              </span>
-            ))}
+            {tools.map((t) => {
+              const off = session.disabledTools.has(t.name);
+              return (
+                <button
+                  key={t.name}
+                  type="button"
+                  disabled={busy}
+                  onClick={() => session.toggleTool(t.name)}
+                  title={off ? "hidden from the model — click to re-enable" : t.description}
+                  className={`rounded border px-1.5 py-0.5 font-mono text-[11px] disabled:opacity-40 ${
+                    off
+                      ? "border-zinc-200 text-zinc-400 line-through opacity-60 dark:border-zinc-800"
+                      : "border-zinc-200 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  {t.name}
+                </button>
+              );
+            })}
           </div>
           <p className="mt-1 text-[10px] text-zinc-400">
-            full name + description + inputSchema for every tool, sent on every call
+            click to toggle what the MODEL sees — the server still lists all{" "}
+            {tools.length}, and manual mode can call any of them
           </p>
         </Section>
       </div>

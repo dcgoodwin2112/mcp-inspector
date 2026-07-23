@@ -151,6 +151,7 @@ export function LiveView({
     const seen = new Map<string, { uri: string; name: string }>();
     for (const e of events) {
       if (e.type === "resource.attached") seen.set(e.uri, { uri: e.uri, name: e.name });
+      else if (e.type === "resource.detached") seen.delete(e.uri);
     }
     return [...seen.values()];
   }, [events]);
@@ -448,7 +449,7 @@ export function LiveView({
         </div>
         {contextOpen ? (
           <div className="h-72 shrink-0 pt-2">
-            <ContextInspector loop={loopRef.current!} session={sessionRef.current!} />
+            <ContextInspector loop={loopRef.current!} session={sessionRef.current!} busy={busy} />
           </div>
         ) : rawFrames ? (
           <div className="h-64 shrink-0 pt-2">

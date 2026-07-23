@@ -53,6 +53,36 @@ export class AgentLoop {
     this.onStateChange?.();
   }
 
+  /** Base instructions — editable from the Context Inspector. */
+  systemBase = AGENT_SYSTEM_SUMMARY;
+
+  setSystemBase(text: string): void {
+    const next = text.trim() || AGENT_SYSTEM_SUMMARY;
+    if (next === this.systemBase) return;
+    const reset = next === AGENT_SYSTEM_SUMMARY;
+    this.systemBase = next;
+    this.session.store.append("user", {
+      type: "context.updated",
+      field: "system",
+      detail: reset
+        ? "system instructions reset to default"
+        : `system instructions edited (${next.length} chars)`,
+      text: next,
+    });
+  }
+
+  /** Wipe conversation history (system, attachments, and tools survive). */
+  clearConversation(): void {
+    const removed = this.messages.length;
+    if (removed === 0) return;
+    this.messages = [];
+    this.session.store.append("user", {
+      type: "context.updated",
+      field: "history",
+      detail: `conversation cleared (${removed} messages removed)`,
+    });
+  }
+
   /** The exact system prompt the next model call will send (base + attached
    *  resources) — the Context Inspector reads this. */
   get system(): string {
@@ -60,7 +90,7 @@ export class AgentLoop {
       .filter((a) => a.text)
       .map((a) => `\n\n=== Attached resource: ${a.uri} (${a.name}) ===\n${a.text}`)
       .join("");
-    return AGENT_SYSTEM_SUMMARY + attachments;
+    return this.systemBase + attachments;
   }
 
   async send(
@@ -140,7 +170,7 @@ export class AgentLoop {
         body: JSON.stringify({
           system: this.system,
           messages: this.messages,
-          tools: this.session.toolItems.map((t) => ({
+          tools: this.session.effectiveTools.map((t) => ({
             name: t.name,
             description: t.description,
             input_schema: t.schema ?? { type: "object", properties: {} },

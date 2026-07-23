@@ -160,7 +160,7 @@ Verified against module source and docs (`ToolAccessSubscriber.php`, README,
       showing the exact next-call payload live from the agent loop: full system
       prompt (incl. attached resources), complete conversation array, tool
       definitions, ~token estimates. Phase 2 (edit system prompt, detach,
-      tool toggles, clear history) planned.
+      tool toggles, clear history) done same day — every edit logged as context.updated / resource.detached events.
 - [x] **Presentation mode.** (Done 2026-07-23.) Big fonts, high contrast, hidden chrome,
       annotations rendered as narration cards.
 - [ ] **OAuth stepper visualization** (authorization-code + PKCE flow):

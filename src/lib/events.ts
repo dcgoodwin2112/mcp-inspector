@@ -156,6 +156,23 @@ export const ResourceAttachedSchema = EventBase.extend({
   mimeType: z.string().optional(),
 });
 
+export const ResourceDetachedSchema = EventBase.extend({
+  type: z.literal("resource.detached"),
+  primitive: z.literal("resource"),
+  uri: z.string(),
+  name: z.string(),
+});
+
+/** A user edit to the model's context (Context Inspector phase 2). Additive
+ *  to schema v2 — older recordings remain valid. */
+export const ContextUpdatedSchema = EventBase.extend({
+  type: z.literal("context.updated"),
+  field: z.enum(["system", "tools", "history"]),
+  detail: z.string(),
+  /** Full new value where applicable (e.g. edited system instructions). */
+  text: z.string().optional(),
+});
+
 export const PromptInvokedSchema = EventBase.extend({
   type: z.literal("prompt.invoked"),
   primitive: z.literal("prompt"),
@@ -255,6 +272,8 @@ export const InspectorEventSchema = z.discriminatedUnion("type", [
   ToolCallCompletedSchema,
   ResourceReadSchema,
   ResourceAttachedSchema,
+  ResourceDetachedSchema,
+  ContextUpdatedSchema,
   PromptInvokedSchema,
   PromptExpandedSchema,
   ContextSnapshotSchema,

@@ -74,6 +74,40 @@ export class LiveSession {
   persona = "";
   toolItems: CapabilityItem[] = [];
   attached: Array<{ uri: string; name: string; text?: string }> = [];
+  /** Host-side tool selection: names hidden from the MODEL (manual mode can
+   *  still call anything the server lists — the toggle shapes only what the
+   *  model sees, like tool pickers in Claude Desktop). */
+  disabledTools = new Set<string>();
+
+  /** The tool definitions the model actually receives. */
+  get effectiveTools(): CapabilityItem[] {
+    return this.toolItems.filter((t) => !this.disabledTools.has(t.name));
+  }
+
+  toggleTool(name: string): void {
+    const disabling = !this.disabledTools.has(name);
+    if (disabling) this.disabledTools.add(name);
+    else this.disabledTools.delete(name);
+    this.store.append("user", {
+      type: "context.updated",
+      field: "tools",
+      detail: `${disabling ? "disabled" : "re-enabled"} ${name} for the model (${this.effectiveTools.length} of ${this.toolItems.length} tools active)`,
+    });
+  }
+
+  /** Remove an attached resource from context (mirrors resource.attached). */
+  detachResource(uri: string): void {
+    const idx = this.attached.findIndex((a) => a.uri === uri);
+    if (idx === -1) return;
+    const [removed] = this.attached.splice(idx, 1);
+    this.store.append("user", {
+      type: "resource.detached",
+      primitive: "resource",
+      uri: removed.uri,
+      name: removed.name,
+    });
+    this.snapshotContext("preview");
+  }
 
   constructor(readonly store: EventLogStore) {}
 
@@ -299,8 +333,8 @@ export class LiveSession {
         ...messageSummaries.map((m) => ({ kind: "message" as const, role: m.role, summary: m.summary })),
         {
           kind: "tool_definitions" as const,
-          count: this.toolItems.length,
-          names: this.toolItems.map((t) => t.name),
+          count: this.effectiveTools.length,
+          names: this.effectiveTools.map((t) => t.name),
         },
         ...this.attached.map((a) => ({
           kind: "attached_resource" as const,

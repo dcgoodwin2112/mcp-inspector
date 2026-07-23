@@ -267,6 +267,24 @@ export function EventCard({ event }: { event: InspectorEvent }) {
         </Card>
       );
 
+    case "resource.detached":
+      return (
+        <Card primitive="resource">
+          <PrimitiveTag primitive="resource" /> detached:{" "}
+          <span className="font-medium line-through">{event.name}</span>{" "}
+          <span className="font-mono text-xs text-zinc-500">{event.uri}</span>
+        </Card>
+      );
+
+    case "context.updated":
+      return (
+        <Card tone="system">
+          <span className="font-medium">Context updated</span>{" "}
+          <span className="text-xs text-zinc-500">({event.field})</span> — {event.detail}
+          {event.text !== undefined && <Raw summary="new value" data={event.text} />}
+        </Card>
+      );
+
     case "prompt.invoked":
       return (
         <Card primitive="prompt">
