@@ -17,6 +17,15 @@ export interface ReplayState {
 
 export const SPEEDS = [0.5, 1, 2, 4] as const;
 
+/**
+ * Longest recorded gap playback will actually wait out. Recordings capture
+ * real presenter idle time between beats (reading a model answer, setting up
+ * the next step — 20-48s stretches in the golden); replay compresses those
+ * while leaving realistic sub-cap latencies untouched. Applied before the
+ * speed division, so 2× still halves the wait.
+ */
+export const MAX_STEP_DELAY_MS = 3000;
+
 export class ReplayController {
   private state: ReplayState = { cursor: 0, playing: false, speed: 1 };
   private timer: ReturnType<typeof setTimeout> | null = null;
@@ -114,7 +123,8 @@ export class ReplayController {
       return;
     }
     const prevT = cursor === 0 ? 0 : this.log.events[cursor - 1].t;
-    const delay = Math.max(0, (this.log.events[cursor].t - prevT) / speed);
+    const delta = Math.max(0, this.log.events[cursor].t - prevT);
+    const delay = Math.min(delta, MAX_STEP_DELAY_MS) / speed;
     this.timer = setTimeout(() => this.advance(), delay);
   }
 

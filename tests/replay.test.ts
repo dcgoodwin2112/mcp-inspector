@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EventLog, InspectorEvent } from "@/lib/events";
-import { ReplayController } from "@/lib/replay";
+import { MAX_STEP_DELAY_MS, ReplayController } from "@/lib/replay";
 
 /** Minimal event shapes — the controller only reads t, type, pauseOnReplay. */
 function ev(over: Record<string, unknown>): InspectorEvent {
@@ -116,6 +116,34 @@ describe("ReplayController playback", () => {
     expect(c.getState().cursor).toBe(2);
     expect(c.getState().playing).toBe(false);
     vi.advanceTimersByTime(10_000); // paused — nothing further reveals
+    expect(c.getState().cursor).toBe(2);
+  });
+
+  it("compresses recorded idle gaps to the step-delay cap", () => {
+    const log = makeLog([
+      ev({ t: 0, type: "session.started" }),
+      ev({ t: 48_000, type: "annotation", text: "next beat" }), // 48s of presenter idle
+    ]);
+    const c = new ReplayController(log);
+    c.play();
+    vi.advanceTimersByTime(0);
+    expect(c.getState().cursor).toBe(1);
+    vi.advanceTimersByTime(MAX_STEP_DELAY_MS - 1);
+    expect(c.getState().cursor).toBe(1);
+    vi.advanceTimersByTime(1);
+    expect(c.getState().cursor).toBe(2);
+  });
+
+  it("divides the capped delay by the playback speed", () => {
+    const log = makeLog([
+      ev({ t: 0, type: "session.started" }),
+      ev({ t: 60_000, type: "user.message" }),
+    ]);
+    const c = new ReplayController(log);
+    c.setSpeed(2);
+    c.play();
+    vi.advanceTimersByTime(0);
+    vi.advanceTimersByTime(MAX_STEP_DELAY_MS / 2);
     expect(c.getState().cursor).toBe(2);
   });
 
