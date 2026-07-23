@@ -55,6 +55,12 @@ function rpcError(frame: unknown): { code: number; message: string } | undefined
   return undefined;
 }
 
+export interface ResourceContent {
+  uri: string;
+  mimeType?: string;
+  text?: string;
+}
+
 export interface ToolOutcome {
   isError: boolean;
   latencyMs?: number;
@@ -221,12 +227,11 @@ export class LiveSession {
     return completion?.values ?? [];
   }
 
-  /** Resource read + attach: app fetches, user attaches — never the model.
-   *  Returns a small summary for the inline echo, or null on failure. */
-  async attachResource(
+  /** resources/read round-trip (app-controlled) — logs resource.read; no
+   *  attachment. The browser's Preview action. */
+  async readResource(
     uri: string,
-    name: string,
-  ): Promise<{ blocks: number; mimeType?: string; latencyMs?: number } | null> {
+  ): Promise<{ contents: ResourceContent[]; latencyMs?: number } | null> {
     const requestId = `r-${crypto.randomUUID().slice(0, 8)}`;
     const res = await this.call({ kind: "resources/read", uri }, requestId);
     const result = rpcResult(res?.responseFrame);
@@ -247,6 +252,11 @@ export class LiveSession {
       latencyMs: res.latencyMs ?? 0,
       contents,
     });
+    return { contents, latencyMs: res.latencyMs };
+  }
+
+  /** Attach already-read contents: user action; snapshot shows the result. */
+  attachFromRead(uri: string, name: string, contents: ResourceContent[]): void {
     this.store.append("user", {
       type: "resource.attached",
       primitive: "resource",
@@ -256,7 +266,21 @@ export class LiveSession {
     });
     this.attached.push({ uri, name, text: contents[0]?.text });
     this.snapshotContext("preview");
-    return { blocks: contents.length, mimeType: contents[0]?.mimeType, latencyMs: res.latencyMs };
+  }
+
+  /** Read + attach in one step (no prior preview). */
+  async attachResource(
+    uri: string,
+    name: string,
+  ): Promise<{ blocks: number; mimeType?: string; latencyMs?: number } | null> {
+    const read = await this.readResource(uri);
+    if (!read) return null;
+    this.attachFromRead(uri, name, read.contents);
+    return {
+      blocks: read.contents.length,
+      mimeType: read.contents[0]?.mimeType,
+      latencyMs: read.latencyMs,
+    };
   }
 
   /** What the model receives — the context visualizer's data. */

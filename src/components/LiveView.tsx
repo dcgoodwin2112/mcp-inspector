@@ -13,7 +13,7 @@ import { FramesDrawer } from "./FramesDrawer";
 import { CapabilityDiff } from "./CapabilityDiff";
 import { CapabilityPanel } from "./CapabilityPanel";
 import { ManualCall } from "./ManualCall";
-import { ResourceAttach } from "./ResourceAttach";
+import { ResourceBrowser } from "./ResourceBrowser";
 import { Timeline } from "./Timeline";
 
 type Selection =
@@ -143,6 +143,15 @@ export function LiveView({
 
   const connected = caps.tools.length > 0;
   const timelineEvents = useMemo(() => events.filter((e) => !isRpcEvent(e)), [events]);
+
+  // Attached resources, derived from the log (deduped by uri).
+  const attachedList = useMemo(() => {
+    const seen = new Map<string, { uri: string; name: string }>();
+    for (const e of events) {
+      if (e.type === "resource.attached") seen.set(e.uri, { uri: e.uri, name: e.name });
+    }
+    return [...seen.values()];
+  }, [events]);
 
   async function run(fn: () => Promise<void>) {
     if (busy) return;
@@ -286,11 +295,18 @@ export function LiveView({
               />
             )}
             {selection?.kind === "resource" && (
-              <ResourceAttach
+              <ResourceBrowser
                 resource={selection.item}
                 busy={busy}
-                onAttach={(uri, name) =>
+                attached={attachedList}
+                onPreview={(uri) => sessionRef.current!.readResource(uri)}
+                onAttach={(uri, name, previewed) =>
                   void run(async () => {
+                    if (previewed) {
+                      sessionRef.current!.attachFromRead(uri, name, previewed);
+                      setEcho({ ok: true, text: `✓ attached ${uri} — context snapshot on the timeline` });
+                      return;
+                    }
                     const out = await sessionRef.current!.attachResource(uri, name);
                     setEcho(
                       out

@@ -149,7 +149,7 @@ Verified against module source and docs (`ToolAccessSubscriber.php`, README,
 
 - [x] **Prompt slash-command UX.** (Done 2026-07-23.) `/explore-dataset` with `dataset_id`
       argument completion, on top of the P0 expansion path.
-- [ ] **Resource browser.** Browse all concrete + templated resources and
+- [x] **Resource browser.** (Done 2026-07-23.) Browse all concrete + templated resources and
       attach from the browser, on top of the P0 attach + context-snapshot path.
       Answers "why doesn't the model just fetch it?" — because the application
       attaches resources.
