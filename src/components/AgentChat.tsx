@@ -200,7 +200,12 @@ export function AgentChat({
       return;
     }
     const list = cmdMatches.length > 0 ? cmdMatches : valueSuggest;
-    if (list.length === 0) return;
+    if (list.length === 0) {
+      // A Tab while the completion fetch is still in flight must not move
+      // focus out of the box — swallow it whenever a command is being composed.
+      if (e.key === "Tab" && slash) e.preventDefault();
+      return;
+    }
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setHighlight((h) => (h + 1) % list.length);
