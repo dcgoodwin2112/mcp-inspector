@@ -47,7 +47,7 @@ export function ResourceBrowser({
   resource: CapabilityItem;
   busy: boolean;
   attached: Array<{ uri: string; name: string }>;
-  onPreview: (uri: string) => Promise<{ contents: ResourceContent[] } | null>;
+  onPreview: (uri: string) => Promise<{ contents: ResourceContent[] } | { error: string }>;
   onAttach: (uri: string, name: string, previewed: ResourceContent[] | null) => void;
   onClose: () => void;
 }) {
@@ -57,6 +57,7 @@ export function ResourceBrowser({
   );
   const [values, setValues] = useState<Record<string, string>>({});
   const [preview, setPreview] = useState<{ uri: string; blocks: ResourceContent[] } | null>(null);
+  const [previewError, setPreviewError] = useState<{ uri: string; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const uri = resource.isTemplate
@@ -69,13 +70,19 @@ export function ResourceBrowser({
   const name = resource.title ?? resource.name;
   const isAttached = attached.some((a) => a.uri === uri);
   const currentPreview = preview?.uri === uri ? preview.blocks : null;
+  const currentError = previewError?.uri === uri ? previewError.message : null;
 
   async function doPreview() {
     if (!ready || loading) return;
     setLoading(true);
     try {
       const r = await onPreview(uri);
-      if (r) setPreview({ uri, blocks: r.contents });
+      if ("contents" in r) {
+        setPreview({ uri, blocks: r.contents });
+        setPreviewError(null);
+      } else {
+        setPreviewError({ uri, message: r.error });
+      }
     } finally {
       setLoading(false);
     }
@@ -133,6 +140,12 @@ export function ResourceBrowser({
           {isAttached ? "Attached ✓" : "Attach to context"}
         </button>
       </div>
+
+      {currentError && (
+        <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs text-red-800 dark:bg-red-950/50 dark:text-red-300">
+          ✗ {currentError}
+        </p>
+      )}
 
       {currentPreview && <ContentView blocks={currentPreview} />}
 

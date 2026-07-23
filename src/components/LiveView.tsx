@@ -329,12 +329,12 @@ export function LiveView({
                     }
                     const out = await sessionRef.current!.attachResource(uri, name);
                     setEcho(
-                      out
-                        ? {
+                      "error" in out
+                        ? { ok: false, text: `✗ ${out.error}` }
+                        : {
                             ok: true,
                             text: `✓ read ${out.blocks} block(s) in ${out.latencyMs ?? "?"} ms — attached to context`,
-                          }
-                        : { ok: false, text: "✗ read failed — see timeline" },
+                          },
                     );
                   })
                 }

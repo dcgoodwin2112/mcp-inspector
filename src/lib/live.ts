@@ -266,11 +266,14 @@ export class LiveSession {
    *  attachment. The browser's Preview action. */
   async readResource(
     uri: string,
-  ): Promise<{ contents: ResourceContent[]; latencyMs?: number } | null> {
+  ): Promise<{ contents: ResourceContent[]; latencyMs?: number } | { error: string }> {
     const requestId = `r-${crypto.randomUUID().slice(0, 8)}`;
     const res = await this.call({ kind: "resources/read", uri }, requestId);
     const result = rpcResult(res?.responseFrame);
-    if (!res?.ok || !result) return null;
+    if (!res?.ok || !result) {
+      const err = rpcError(res?.responseFrame);
+      return { error: err?.message ?? "read failed — see the timeline for details" };
+    }
     const contents = ((result.contents as Array<Record<string, unknown>>) ?? []).map((c) => ({
       uri: String(c.uri ?? uri),
       mimeType: c.mimeType as string | undefined,
@@ -312,9 +315,9 @@ export class LiveSession {
   async attachResource(
     uri: string,
     name: string,
-  ): Promise<{ blocks: number; mimeType?: string; latencyMs?: number } | null> {
+  ): Promise<{ blocks: number; mimeType?: string; latencyMs?: number } | { error: string }> {
     const read = await this.readResource(uri);
-    if (!read) return null;
+    if ("error" in read) return read;
     this.attachFromRead(uri, name, read.contents);
     return {
       blocks: read.contents.length,
