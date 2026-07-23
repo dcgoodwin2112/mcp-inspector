@@ -9,6 +9,7 @@ import { AgentLoop } from "@/lib/agent";
 import { useEventLog } from "@/hooks/useEventLog";
 import { isRpcEvent, useRawFrames } from "@/hooks/useRawFrames";
 import { AgentChat } from "./AgentChat";
+import { ContextInspector } from "./ContextInspector";
 import { FramesDrawer } from "./FramesDrawer";
 import { CapabilityDiff } from "./CapabilityDiff";
 import { CapabilityPanel } from "./CapabilityPanel";
@@ -58,6 +59,7 @@ export function LiveView({
   const [forceName, setForceName] = useState("");
   const [agentWaiting, setAgentWaiting] = useState(false);
   const [rawFrames, toggleRawFrames] = useRawFrames();
+  const [contextOpen, setContextOpen] = useState(false);
   const [railWidth, setRailWidth] = useState(420);
   /** Stacked-layout rail height in px; null = the 50% default. */
   const [railHeight, setRailHeight] = useState<number | null>(null);
@@ -379,7 +381,10 @@ export function LiveView({
           <h2 className="text-xs font-semibold uppercase text-zinc-400">Timeline</h2>
           <button
             type="button"
-            onClick={toggleRawFrames}
+            onClick={() => {
+              setContextOpen(false);
+              toggleRawFrames();
+            }}
             title="Show raw JSON-RPC frames"
             className={`rounded-md border px-2 py-0.5 font-mono text-xs ${
               rawFrames
@@ -388,6 +393,23 @@ export function LiveView({
             }`}
           >
             {"{ }"} Raw frames
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setContextOpen((v) => {
+                if (!v && rawFrames) toggleRawFrames();
+                return !v;
+              });
+            }}
+            title="What the next model call will send"
+            className={`rounded-md border px-2 py-0.5 font-mono text-xs ${
+              contextOpen
+                ? "border-fuchsia-500 bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-950 dark:text-fuchsia-300"
+                : "border-zinc-300 text-zinc-500 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            }`}
+          >
+            ⊞ Context
           </button>
           {events.length > 0 && (
             <span className="ml-auto flex gap-2">
@@ -424,11 +446,15 @@ export function LiveView({
             emptyHint="Pick a persona and press Connect — the handshake and capability lists will stream in here."
           />
         </div>
-        {rawFrames && (
+        {contextOpen ? (
+          <div className="h-72 shrink-0 pt-2">
+            <ContextInspector loop={loopRef.current!} session={sessionRef.current!} />
+          </div>
+        ) : rawFrames ? (
           <div className="h-64 shrink-0 pt-2">
             <FramesDrawer events={events} />
           </div>
-        )}
+        ) : null}
       </section>
     </div>
   );

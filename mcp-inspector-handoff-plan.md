@@ -156,6 +156,11 @@ Verified against module source and docs (`ToolAccessSubscriber.php`, README,
 - [x] **Raw-frames drawer.** (Done 2026-07-23; toggle labeled "Raw frames".) Collapsible raw JSON-RPC frames (`rpc.*` events),
       paired request/response via `requestId`. Includes the `initialize`
       handshake — teach the protocol from real frames.
+- [x] **Context inspector (added).** (Phase 1 done 2026-07-23.) Read-only drawer
+      showing the exact next-call payload live from the agent loop: full system
+      prompt (incl. attached resources), complete conversation array, tool
+      definitions, ~token estimates. Phase 2 (edit system prompt, detach,
+      tool toggles, clear history) planned.
 - [x] **Presentation mode.** (Done 2026-07-23.) Big fonts, high contrast, hidden chrome,
       annotations rendered as narration cards.
 - [ ] **OAuth stepper visualization** (authorization-code + PKCE flow):

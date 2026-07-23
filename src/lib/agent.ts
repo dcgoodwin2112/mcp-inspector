@@ -6,7 +6,7 @@ import { AGENT_SYSTEM_SUMMARY, type LiveSession } from "./live";
  * "step button pauses between hops").
  */
 
-interface ContentBlock {
+export interface ContentBlock {
   type: string;
   text?: string;
   id?: string;
@@ -23,6 +23,11 @@ interface AgentTurnResult {
 
 export class AgentLoop {
   private messages: Array<{ role: "user" | "assistant"; content: unknown }> = [];
+
+  /** Read-only view of the live conversation array for the Context Inspector. */
+  getMessages(): ReadonlyArray<{ role: "user" | "assistant"; content: unknown }> {
+    return this.messages;
+  }
   private turnCount = 0;
   stepMode = false;
   /** Set while waiting for the presenter to press Continue. */
@@ -48,7 +53,9 @@ export class AgentLoop {
     this.onStateChange?.();
   }
 
-  private get system(): string {
+  /** The exact system prompt the next model call will send (base + attached
+   *  resources) — the Context Inspector reads this. */
+  get system(): string {
     const attachments = this.session.attached
       .filter((a) => a.text)
       .map((a) => `\n\nAttached resource ${a.uri} (${a.name}):\n${a.text}`)
