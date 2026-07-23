@@ -16,11 +16,14 @@ export function Timeline({
   events,
   emptyHint = "No events yet.",
   jumpNonce,
+  present = false,
 }: {
   events: InspectorEvent[];
   emptyHint?: string;
   /** Increment to force-scroll to the tail (explicit seek/step navigation). */
   jumpNonce?: number;
+  /** Presentation mode — leave room to scroll past the floating controls. */
+  present?: boolean;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [atBottom, setAtBottom] = useState(true);
@@ -57,7 +60,7 @@ export function Timeline({
         {events.length === 0 ? (
           <p className="py-16 text-center text-sm text-zinc-400">{emptyHint}</p>
         ) : (
-          <ol className="space-y-2 pb-4">
+          <ol className={`space-y-2 ${present ? "pb-32" : "pb-4"}`}>
             {rows.map((row, i) => {
               const event = row.event;
               const delta = i === 0 ? event.t : event.t - rows[i - 1].event.t;

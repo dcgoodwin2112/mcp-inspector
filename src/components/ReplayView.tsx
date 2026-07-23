@@ -107,6 +107,7 @@ export function ReplayView({
           events={timelineEvents}
           emptyHint="Press ▶ (or space) to start the replay."
           jumpNonce={jumpNonce}
+          present={present}
         />
       </div>
       {rawFrames && (
