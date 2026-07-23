@@ -56,13 +56,20 @@ export class AgentLoop {
     return AGENT_SYSTEM_SUMMARY + attachments;
   }
 
-  async send(userText: string): Promise<void> {
+  async send(
+    userText: string,
+    trigger: "user_message" | "prompt_invocation" = "user_message",
+  ): Promise<void> {
     const store = this.session.store;
     this.turnCount += 1;
     const turnId = `turn-${this.turnCount}`;
 
-    store.append("user", { type: "turn.started", turnId, trigger: "user_message" });
-    store.append("user", { type: "user.message", turnId, text: userText });
+    store.append("user", { type: "turn.started", turnId, trigger });
+    // A prompt invocation's content is already on the timeline as
+    // prompt.expanded — no duplicate user.message.
+    if (trigger === "user_message") {
+      store.append("user", { type: "user.message", turnId, text: userText });
+    }
     this.messages.push({ role: "user", content: userText });
 
     for (;;) {

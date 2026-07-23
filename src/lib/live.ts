@@ -177,8 +177,11 @@ export class LiveSession {
   }
 
   /** Prompt invocation: user-controlled primitive; expansion shown pre-send.
-   *  Returns the expanded message count, or null on failure. */
-  async invokePrompt(name: string, args: Record<string, string>): Promise<number | null> {
+   *  Returns the flattened expanded messages, or null on failure. */
+  async invokePrompt(
+    name: string,
+    args: Record<string, string>,
+  ): Promise<Array<{ role: string; content: string }> | null> {
     this.store.append("user", {
       type: "prompt.invoked",
       primitive: "prompt",
@@ -202,7 +205,7 @@ export class LiveSession {
       promptName: name,
       messages,
     });
-    return messages.length;
+    return messages;
   }
 
   /**

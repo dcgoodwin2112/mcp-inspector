@@ -55,6 +55,8 @@ export function LiveView({
   const [busy, setBusy] = useState(false);
   const [selection, setSelectionState] = useState<Selection>(null);
   const [echo, setEcho] = useState<Echo | null>(null);
+  /** Expanded prompt awaiting "Send to agent". */
+  const [pendingPrompt, setPendingPrompt] = useState<{ name: string; text: string } | null>(null);
   const [forceName, setForceName] = useState("");
   const [agentWaiting, setAgentWaiting] = useState(false);
   const [rawFrames, toggleRawFrames] = useRawFrames();
@@ -111,6 +113,7 @@ export function LiveView({
   function setSelection(sel: Selection) {
     setSelectionState(sel);
     setEcho(null);
+    setPendingPrompt(null);
   }
 
   useEffect(() => {
@@ -307,12 +310,20 @@ export function LiveView({
                 }
                 onInvoke={(name, args) =>
                   void run(async () => {
-                    const n = await sessionRef.current!.invokePrompt(name, args);
-                    setEcho(
-                      n !== null
-                        ? { ok: true, text: `✓ expanded ${n} message(s) — shown on the timeline before send` }
-                        : { ok: false, text: "✗ expansion failed — see timeline" },
-                    );
+                    const messages = await sessionRef.current!.invokePrompt(name, args);
+                    if (messages === null) {
+                      setEcho({ ok: false, text: "✗ expansion failed — see timeline" });
+                      setPendingPrompt(null);
+                      return;
+                    }
+                    setEcho({
+                      ok: true,
+                      text: `✓ expanded ${messages.length} message(s) — review on the timeline, then send`,
+                    });
+                    setPendingPrompt({
+                      name,
+                      text: messages.map((m) => m.content).join("\n\n"),
+                    });
                   })
                 }
                 onClose={() => setSelection(null)}
@@ -328,6 +339,21 @@ export function LiveView({
               >
                 {echo.text}
               </p>
+            )}
+            {pendingPrompt && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  const p = pendingPrompt;
+                  setPendingPrompt(null);
+                  setSelectionState(null);
+                  void run(() => loopRef.current!.send(p.text, "prompt_invocation"));
+                }}
+                className="rounded-md bg-amber-700 px-4 py-1.5 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+              >
+                ▶ Send /{pendingPrompt.name} to agent
+              </button>
             )}
 
             <CapabilityPanel
