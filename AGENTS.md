@@ -8,6 +8,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 MCP demo client (Next.js 16 / React 19 / TS / Tailwind v4) for the DKAN talk.
 User-facing docs: [README.md](README.md). Demo script: [DEMO-RUNBOOK.md](DEMO-RUNBOOK.md).
+Feature backlog: [ROADMAP.md](ROADMAP.md).
 History/decisions: [mcp-inspector-handoff-plan.md](mcp-inspector-handoff-plan.md).
 
 ## Invariants (do not break)
