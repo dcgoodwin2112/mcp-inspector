@@ -78,6 +78,7 @@ export const CapabilityItemSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   schema: z.unknown().optional(),
+  outputSchema: z.unknown().optional(),
   isTemplate: z.boolean().optional(),
   uriTemplate: z.string().optional(),
 });
@@ -131,6 +132,9 @@ export const ToolCallCompletedSchema = EventBase.extend({
   latencyMs: z.number().nonnegative(),
   isError: z.boolean(),
   result: z.unknown(),
+  // The tool's declared outputSchema (from tools/list), embedded at call time
+  // so the result card can show what structuredContent promises to match.
+  outputSchema: z.unknown().optional(),
 });
 
 export const ResourceReadSchema = EventBase.extend({

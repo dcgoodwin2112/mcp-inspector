@@ -48,6 +48,11 @@ npm run dev
   (`src/lib/fixtures/goldens/full-demo.json`) auto-pauses at narration cards.
 - **`{ } Raw frames`**: JSON-RPC exchanges paired by request id, hidden from
   the main timeline.
+- **Learning aids**: a collapsible legend in the rail (primitives + who
+  controls each, actor badges); every timeline card has an "ⓘ what is this?"
+  note linking into the MCP spec (works in replay too); tool-result cards tab
+  between text content, `structuredContent`, the tool's `outputSchema`, and
+  the raw result.
 - **`⊞ Context`**: the exact payload the next model call will send, read live
   from the agent loop — system prompt (attached data visually delimited),
   full conversation array, tool definitions, ~token estimates. Editable:

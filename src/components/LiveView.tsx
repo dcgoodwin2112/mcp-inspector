@@ -14,6 +14,7 @@ import { ContextInspector } from "./ContextInspector";
 import { FramesDrawer } from "./FramesDrawer";
 import { CapabilityDiff } from "./CapabilityDiff";
 import { CapabilityPanel } from "./CapabilityPanel";
+import { Legend } from "./Legend";
 import { ManualCall } from "./ManualCall";
 import { ResourceBrowser } from "./ResourceBrowser";
 import { Timeline } from "./Timeline";
@@ -249,6 +250,8 @@ export function LiveView({
             </>
           )}
         </div>
+
+        <Legend />
 
         {connected && (
           <>

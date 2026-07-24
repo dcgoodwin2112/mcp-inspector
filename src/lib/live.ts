@@ -198,6 +198,7 @@ export class LiveSession {
         latencyMs: res.latencyMs ?? 0,
         isError,
         result,
+        outputSchema: this.toolItems.find((t) => t.name === name)?.outputSchema,
       });
       const content = (result.content as Array<{ type: string; text?: string }>) ?? [];
       return { isError, latencyMs: res.latencyMs, content };
@@ -360,6 +361,7 @@ export class LiveSession {
         title: t.title as string | undefined,
         description: t.description as string | undefined,
         schema: t.inputSchema,
+        outputSchema: t.outputSchema,
       }));
       this.toolItems = items;
     } else if (kind === "resources/list") {

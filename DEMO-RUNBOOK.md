@@ -24,7 +24,7 @@ Replay tab — every beat has a narration card; play to it, or step (`←/→`).
 | # | Beat | Live actions | Watch for |
 |---|---|---|---|
 | 1 | Connect + discovery | Read-only → Connect | token REDACTED, initialize, 3 color-coded lists |
-| 2 | Manual tool call | Panel → `search_datasets` → keyword "bike lanes" → Call tool | `manual` badge — no model involved |
+| 2 | Manual tool call | Panel → `search_datasets` → keyword "bike lanes" → Call tool | `manual` badge — no model involved; open result → `structuredContent` / `outputSchema` tabs |
 | 3 | Agent loop | Chat: "Summarize the Florida Bike Lanes dataset." (optional: step between hops) | model chooses the tool; result re-enters loop |
 | 4 | Prompts (user-controlled) | `/expl` Tab → `ce` Tab → Enter (preview) → Enter (send) | expansion shown pre-send; completion frames in drawer |
 | 5 | Resources (app-controlled) | Panel → `dkan://dataset/{id}` → paste id → Preview, then Attach to context | context snapshot; open `⊞ Context` to show it sitting in the system prompt |

@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import type { CapabilityItem, InspectorEvent, Primitive } from "@/lib/events";
+import { specNote, type SpecNote } from "@/lib/spec-notes";
 import type { CapabilitiesListed } from "@/lib/timeline-rows";
 import { PRIMITIVE_STYLES } from "@/lib/ui";
 import { Markdown } from "./Markdown";
@@ -42,6 +46,63 @@ function Raw({ summary, data }: { summary: string; data: unknown }) {
   );
 }
 
+/**
+ * Tool-result views: the text the model reads, the structuredContent that
+ * mirrors it, the outputSchema it promises to match, and the raw frame.
+ */
+function ResultTabs({ result, outputSchema }: { result: unknown; outputSchema?: unknown }) {
+  const r = result as
+    | { content?: Array<{ type: string; text?: string }>; structuredContent?: unknown }
+    | undefined;
+  const text = (r?.content ?? [])
+    .map((c) => c.text ?? "")
+    .filter(Boolean)
+    .join("\n");
+  const tabs = [
+    { id: "text", label: "text content", show: true },
+    { id: "structured", label: "structuredContent", show: r?.structuredContent !== undefined },
+    { id: "schema", label: "outputSchema", show: outputSchema !== undefined },
+    { id: "raw", label: "raw result", show: true },
+  ].filter((t) => t.show);
+  const [tab, setTab] = useState("text");
+  const active = tabs.some((t) => t.id === tab) ? tab : "text";
+  return (
+    <details className="mt-1">
+      <summary className="cursor-pointer select-none text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300">
+        result
+      </summary>
+      <div className="mt-1 flex flex-wrap gap-1">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            aria-pressed={active === t.id}
+            className={`rounded border px-1.5 py-0.5 font-mono text-[10px] ${
+              active === t.id
+                ? "border-cyan-500 bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300"
+                : "border-zinc-300 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {active === "text" ? (
+        <pre className="mt-1 max-h-72 overflow-y-auto whitespace-pre-wrap break-words rounded bg-zinc-100 p-2 font-mono text-xs leading-relaxed dark:bg-zinc-900">
+          {text || "(no text content)"}
+        </pre>
+      ) : active === "structured" ? (
+        <Json data={r?.structuredContent} />
+      ) : active === "schema" ? (
+        <Json data={outputSchema} />
+      ) : (
+        <Json data={result} />
+      )}
+    </details>
+  );
+}
+
 function PrimitiveTag({ primitive }: { primitive: Primitive }) {
   const s = PRIMITIVE_STYLES[primitive];
   return <span className={`text-xs font-semibold uppercase ${s.text}`}>{s.label}</span>;
@@ -50,10 +111,12 @@ function PrimitiveTag({ primitive }: { primitive: Primitive }) {
 function Card({
   primitive,
   tone,
+  info,
   children,
 }: {
   primitive?: Primitive;
   tone?: "error" | "system";
+  info?: SpecNote;
   children: React.ReactNode;
 }) {
   const border = primitive ? `border-l-2 ${PRIMITIVE_STYLES[primitive].border}` : "";
@@ -63,7 +126,34 @@ function Card({
       : tone === "system"
         ? "bg-zinc-50 dark:bg-zinc-900/60"
         : "bg-white shadow-sm ring-1 ring-zinc-200 dark:bg-zinc-900 dark:ring-zinc-800";
-  return <div className={`rounded-md px-3 py-2 text-sm ${toneCls} ${border}`}>{children}</div>;
+  return (
+    <div className={`rounded-md px-3 py-2 text-sm ${toneCls} ${border}`}>
+      {children}
+      {info && (
+        <details className="mt-1">
+          <summary className="cursor-pointer select-none text-[10px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300">
+            ⓘ what is this?
+          </summary>
+          <p className="mt-0.5 max-w-prose text-xs leading-relaxed text-zinc-600 dark:text-zinc-300">
+            {info.text}
+            {info.href && (
+              <>
+                {" "}
+                <a
+                  href={info.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-cyan-700 underline dark:text-cyan-400"
+                >
+                  spec →
+                </a>
+              </>
+            )}
+          </p>
+        </details>
+      )}
+    </div>
+  );
 }
 
 function HttpStatus({ status }: { status: number }) {
@@ -92,10 +182,11 @@ export function EventCard({
   /** Repeat listing (persona switch) — render as a collapsed summary. */
   compact?: boolean;
 }) {
+  const info = specNote(event);
   switch (event.type) {
     case "session.started":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           <span className="font-medium">Session started</span> — profile{" "}
           <span className="font-medium">{event.profile}</span>{" "}
           <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.serverUrl}</span>{" "}
@@ -107,7 +198,7 @@ export function EventCard({
 
     case "session.ended":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           <span className="font-medium">Session ended</span>{" "}
           <span className="text-xs text-zinc-500 dark:text-zinc-400">({event.reason})</span>
         </Card>
@@ -115,7 +206,7 @@ export function EventCard({
 
     case "mcp.initialized":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           <span className="font-medium">MCP initialized</span> — {event.serverInfo.name} v
           {event.serverInfo.version}
           {event.mcpSessionId && (
@@ -127,14 +218,14 @@ export function EventCard({
 
     case "auth.persona.selected":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           Persona selected: <span className="font-medium">{event.label}</span>
         </Card>
       );
 
     case "auth.oauth.step":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           OAuth <span className="font-mono text-xs">{event.step}</span>
           {event.detail && <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">{event.detail}</span>}
         </Card>
@@ -142,7 +233,7 @@ export function EventCard({
 
     case "auth.token.received":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           Token received — scopes{" "}
           <span className="font-mono text-xs">{event.scopes.join(", ")}</span>
           <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
@@ -176,7 +267,7 @@ export function EventCard({
       );
       if (compact) {
         return (
-          <Card primitive={event.primitive}>
+          <Card info={info} primitive={event.primitive}>
             <details>
               <summary className="cursor-pointer select-none">
                 {title} <span className="text-xs text-zinc-500 dark:text-zinc-400">· re-listed</span>
@@ -187,7 +278,7 @@ export function EventCard({
         );
       }
       return (
-        <Card primitive={event.primitive}>
+        <Card info={info} primitive={event.primitive}>
           {title}
           <CapChips items={items} />
         </Card>
@@ -205,7 +296,7 @@ export function EventCard({
 
     case "user.message":
       return (
-        <Card>
+        <Card info={info}>
           <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
             user
           </span>
@@ -215,7 +306,7 @@ export function EventCard({
 
     case "model.text":
       return (
-        <Card>
+        <Card info={info}>
           <span className="text-xs font-semibold text-fuchsia-700 dark:text-fuchsia-400">
             model
           </span>
@@ -227,7 +318,7 @@ export function EventCard({
 
     case "context.snapshot":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           <span className="font-medium">Context snapshot</span>{" "}
           <span className="text-xs text-zinc-500 dark:text-zinc-400">what the model receives · {event.turnId}</span>
           <ul className="mt-1 space-y-0.5 text-xs">
@@ -258,7 +349,7 @@ export function EventCard({
 
     case "tool.call.requested":
       return (
-        <Card primitive="tool">
+        <Card info={info} primitive="tool">
           <div className="flex items-center gap-2">
             <PrimitiveTag primitive="tool" />
             <span className="font-mono font-medium">{event.toolName}</span>
@@ -274,7 +365,7 @@ export function EventCard({
 
     case "tool.call.completed":
       return (
-        <Card primitive="tool" tone={event.isError ? "error" : undefined}>
+        <Card info={info} primitive="tool" tone={event.isError ? "error" : undefined}>
           <div className="flex items-center gap-2">
             <PrimitiveTag primitive="tool" />
             <span className="font-mono font-medium">{event.toolName}</span>
@@ -287,13 +378,13 @@ export function EventCard({
               <span className="text-xs text-emerald-600 dark:text-emerald-400">✓</span>
             )}
           </div>
-          <Raw summary="result" data={event.result} />
+          <ResultTabs result={event.result} outputSchema={event.outputSchema} />
         </Card>
       );
 
     case "resource.read":
       return (
-        <Card primitive="resource">
+        <Card info={info} primitive="resource">
           <PrimitiveTag primitive="resource" />{" "}
           <span className="font-mono font-medium">{event.uri}</span>{" "}
           <span className="text-xs text-zinc-500 dark:text-zinc-400">{event.latencyMs} ms</span>
@@ -303,7 +394,7 @@ export function EventCard({
 
     case "resource.attached":
       return (
-        <Card primitive="resource">
+        <Card info={info} primitive="resource">
           <PrimitiveTag primitive="resource" /> attached:{" "}
           <span className="font-medium">{event.name}</span>{" "}
           <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.uri}</span>
@@ -312,7 +403,7 @@ export function EventCard({
 
     case "resource.detached":
       return (
-        <Card primitive="resource">
+        <Card info={info} primitive="resource">
           <PrimitiveTag primitive="resource" /> detached:{" "}
           <span className="font-medium line-through">{event.name}</span>{" "}
           <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">{event.uri}</span>
@@ -321,7 +412,7 @@ export function EventCard({
 
     case "context.updated":
       return (
-        <Card tone="system">
+        <Card info={info} tone="system">
           <span className="font-medium">Context updated</span>{" "}
           <span className="text-xs text-zinc-500 dark:text-zinc-400">({event.field})</span> — {event.detail}
           {event.text !== undefined && <Raw summary="new value" data={event.text} />}
@@ -330,7 +421,7 @@ export function EventCard({
 
     case "prompt.invoked":
       return (
-        <Card primitive="prompt">
+        <Card info={info} primitive="prompt">
           <PrimitiveTag primitive="prompt" />{" "}
           <span className="font-mono font-medium">{event.promptName}</span>
           <Json data={event.args} />
@@ -339,7 +430,7 @@ export function EventCard({
 
     case "prompt.expanded":
       return (
-        <Card primitive="prompt">
+        <Card info={info} primitive="prompt">
           <PrimitiveTag primitive="prompt" />{" "}
           <span className="font-mono font-medium">{event.promptName}</span>{" "}
           <span className="text-xs text-zinc-500 dark:text-zinc-400">expanded — shown before send</span>
@@ -379,7 +470,7 @@ export function EventCard({
 
     case "error":
       return (
-        <Card tone="error">
+        <Card info={info} tone="error">
           <span className="font-semibold text-red-700 dark:text-red-400">Error</span>{" "}
           <span className="text-xs text-zinc-500 dark:text-zinc-400">({event.scope})</span>
           <div className="mt-1 flex items-center gap-2">
