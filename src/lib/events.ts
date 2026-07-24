@@ -79,6 +79,8 @@ export const CapabilityItemSchema = z.object({
   description: z.string().optional(),
   schema: z.unknown().optional(),
   outputSchema: z.unknown().optional(),
+  // Advisory tool hints from tools/list (readOnlyHint, destructiveHint, …).
+  annotations: z.record(z.string(), z.unknown()).optional(),
   isTemplate: z.boolean().optional(),
   uriTemplate: z.string().optional(),
 });

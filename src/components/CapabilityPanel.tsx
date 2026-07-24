@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CapabilityItem } from "@/lib/events";
 import { PRIMITIVE_STYLES } from "@/lib/ui";
+import { AnnotationChips } from "./AnnotationChips";
 
 /** Curated subset shown by default — 38 tools is too many for one screen. */
 const DEMO_TOOLS = new Set([
@@ -64,6 +65,8 @@ function Column({
                   {item.name}
                 </span>
               )}
+              {/* Only the notable hints in list rows — read-only on 25 tools is noise. */}
+              <AnnotationChips annotations={item.annotations} showReadOnly={false} />
               {item.schema !== undefined && (
                 <button
                   type="button"

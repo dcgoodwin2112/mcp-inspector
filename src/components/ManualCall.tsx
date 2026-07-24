@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { CapabilityItem } from "@/lib/events";
 import { coerceValues, fieldsFromSchema } from "@/lib/schema-form";
+import { AnnotationChips } from "./AnnotationChips";
 
 /**
  * Manual/inspector mode: an auto-generated form from the tool's inputSchema.
@@ -53,6 +54,7 @@ export function ManualCall({
           manual call
         </span>
         <span className="font-mono text-sm font-medium">{tool.name}</span>
+        <AnnotationChips annotations={tool.annotations} />
         <button
           type="button"
           onClick={onClose}

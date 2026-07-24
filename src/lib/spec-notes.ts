@@ -44,7 +44,7 @@ export function specNote(event: InspectorEvent): SpecNote | undefined {
       switch (event.primitive) {
         case "tool":
           return {
-            text: "tools/list returns what the MODEL may call — each tool carries a JSON Schema the model uses to build arguments. Model-controlled.",
+            text: "tools/list returns what the MODEL may call — each tool carries a JSON Schema the model uses to build arguments. Model-controlled. Hint chips (read-only, destructive, open-world) are advisory annotations — hosts must not treat them as security.",
             href: `${SPEC}/server/tools`,
           };
         case "resource":

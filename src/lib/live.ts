@@ -362,6 +362,7 @@ export class LiveSession {
         description: t.description as string | undefined,
         schema: t.inputSchema,
         outputSchema: t.outputSchema,
+        annotations: t.annotations as Record<string, unknown> | undefined,
       }));
       this.toolItems = items;
     } else if (kind === "resources/list") {
