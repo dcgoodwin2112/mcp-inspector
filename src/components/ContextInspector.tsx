@@ -155,6 +155,71 @@ function Blocks({ content }: { content: unknown }) {
   );
 }
 
+/**
+ * "Descriptions are prompts": rewrite what the MODEL reads as a tool's
+ * description (host-side only — the server is unchanged), then re-ask a
+ * question and watch tool choice change. Edits log context.updated events.
+ */
+function DescriptionSandbox({ session, busy }: { session: LiveSession; busy: boolean }) {
+  const [toolName, setToolName] = useState("");
+  const [draft, setDraft] = useState("");
+
+  function select(name: string) {
+    setToolName(name);
+    setDraft(
+      name === "" ? "" : (session.effectiveTools.find((t) => t.name === name)?.description ?? ""),
+    );
+  }
+
+  const serverDescription = session.toolItems.find((t) => t.name === toolName)?.description ?? "";
+
+  return (
+    <div className="mt-2 border-t border-zinc-100 pt-1.5 dark:border-zinc-800">
+      <label className="block text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">
+        ✎ rewrite a description — what the model reads
+        <select
+          value={toolName}
+          onChange={(e) => select(e.target.value)}
+          className="mt-1 block w-full max-w-72 rounded border border-zinc-300 bg-white px-1.5 py-1 font-mono text-[11px] font-normal normal-case dark:border-zinc-700 dark:bg-zinc-950"
+        >
+          <option value="">choose a tool…</option>
+          {session.toolItems.map((t) => (
+            <option key={t.name} value={t.name}>
+              {t.name}
+              {session.descriptionOverrides.has(t.name) ? " ✎" : ""}
+            </option>
+          ))}
+        </select>
+      </label>
+      {toolName !== "" && (
+        <div>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            rows={3}
+            aria-label={`Description the model sees for ${toolName}`}
+            className="mt-1 w-full rounded border border-zinc-300 bg-white p-1.5 font-mono text-[11px] leading-relaxed dark:border-zinc-700 dark:bg-zinc-950"
+          />
+          <div className="mt-1 flex gap-1.5">
+            <SmallBtn onClick={() => session.overrideToolDescription(toolName, draft)} disabled={busy}>
+              save
+            </SmallBtn>
+            <SmallBtn
+              onClick={() => {
+                session.overrideToolDescription(toolName, null);
+                setDraft(serverDescription);
+              }}
+              disabled={busy || !session.descriptionOverrides.has(toolName)}
+            >
+              restore server default
+            </SmallBtn>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ContextInspector({
   loop,
   session,
@@ -298,6 +363,7 @@ export function ContextInspector({
           <div className="flex flex-wrap gap-1">
             {tools.map((t) => {
               const off = session.disabledTools.has(t.name);
+              const edited = session.descriptionOverrides.has(t.name);
               return (
                 <button
                   key={t.name}
@@ -305,14 +371,23 @@ export function ContextInspector({
                   disabled={busy}
                   onClick={() => session.toggleTool(t.name)}
                   aria-pressed={!off}
-                  title={off ? "hidden from the model — click to re-enable" : t.description}
+                  title={
+                    off
+                      ? "hidden from the model — click to re-enable"
+                      : edited
+                        ? "description rewritten for the model — click to disable"
+                        : t.description
+                  }
                   className={`rounded border px-1.5 py-0.5 font-mono text-[11px] disabled:opacity-40 ${
                     off
                       ? "border-zinc-200 text-zinc-500 dark:text-zinc-400 line-through opacity-60 dark:border-zinc-800"
-                      : "border-zinc-200 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                      : edited
+                        ? "border-amber-400 hover:bg-zinc-100 dark:border-amber-700 dark:hover:bg-zinc-800"
+                        : "border-zinc-200 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
                   }`}
                 >
                   {t.name}
+                  {edited && <span className="text-amber-600 dark:text-amber-400"> ✎</span>}
                 </button>
               );
             })}
@@ -321,6 +396,7 @@ export function ContextInspector({
             click to toggle what the MODEL sees — the server still lists all{" "}
             {tools.length}, and manual mode can call any of them
           </p>
+          <DescriptionSandbox session={session} busy={busy} />
         </Section>
       </div>
     </div>

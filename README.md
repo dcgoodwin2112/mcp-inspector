@@ -57,8 +57,10 @@ npm run dev
   from the agent loop — system prompt (attached data visually delimited),
   full conversation array, tool definitions, ~token estimates. Editable:
   system instructions, per-resource detach, host-side tool toggles (hides
-  tools from the model only), clear conversation. Every edit is logged
-  (`context.updated` / `resource.detached` events).
+  tools from the model only), per-tool description rewriting ("descriptions
+  are prompts" — re-ask a question and watch tool choice change), clear
+  conversation. Every edit is logged (`context.updated` /
+  `resource.detached` events).
 
 Keyboard: `p` presentation mode (130% scale, hidden chrome), `Esc` exit,
 `space` play/pause, `←/→` step, `Home`/`End` jump, `/` prompt commands.

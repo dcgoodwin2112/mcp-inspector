@@ -78,10 +78,38 @@ export class LiveSession {
    *  still call anything the server lists — the toggle shapes only what the
    *  model sees, like tool pickers in Claude Desktop). */
   disabledTools = new Set<string>();
+  /** Host-side description rewrites — the sandbox for "descriptions are prompts". */
+  descriptionOverrides = new Map<string, string>();
 
   /** The tool definitions the model actually receives. */
   get effectiveTools(): CapabilityItem[] {
-    return this.toolItems.filter((t) => !this.disabledTools.has(t.name));
+    return this.toolItems
+      .filter((t) => !this.disabledTools.has(t.name))
+      .map((t) => {
+        const override = this.descriptionOverrides.get(t.name);
+        return override === undefined ? t : { ...t, description: override };
+      });
+  }
+
+  /** Rewrite what the MODEL sees as a tool's description; null restores the server's. */
+  overrideToolDescription(name: string, description: string | null): void {
+    const server = this.toolItems.find((t) => t.name === name)?.description;
+    if (description === null || description === server) {
+      if (!this.descriptionOverrides.delete(name)) return;
+      this.store.append("user", {
+        type: "context.updated",
+        field: "tools",
+        detail: `restored the server's description for ${name}`,
+      });
+      return;
+    }
+    this.descriptionOverrides.set(name, description);
+    this.store.append("user", {
+      type: "context.updated",
+      field: "tools",
+      detail: `rewrote the description of ${name} for the model — the server is unchanged`,
+      text: description,
+    });
   }
 
   toggleTool(name: string): void {
@@ -115,6 +143,8 @@ export class LiveSession {
   async connect(profile: PublicProfile, personaKey: string): Promise<void> {
     this.store.start(`live-${Date.now().toString(36)}`);
     this.attached = [];
+    this.disabledTools.clear();
+    this.descriptionOverrides.clear();
     this.store.append("app", {
       type: "session.started",
       profile: profile.name,

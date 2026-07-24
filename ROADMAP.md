@@ -11,20 +11,18 @@ freeze and Aug 21 talk. Decision history: [mcp-inspector-handoff-plan.md](mcp-in
 - Tool-result tabs (text / structuredContent / outputSchema / raw)
 - Tool annotation chips (destructive/open-world/non-idempotent in panel rows,
   full set in the manual-call header; `src/lib/annotations.ts`)
+- Description-engineering sandbox (rewrite a tool description host-side in
+  the Context inspector; verified A/B: poisoned search_datasets description
+  → model switches to list_datasets, restore → back to search_datasets)
 
 ## Before the talk
 
 | # | Feature | Teaches | Impact | Effort |
 |---|---------|---------|--------|--------|
-| 2 | Description-engineering sandbox | tool descriptions steer the model | Very high | Medium |
 | 3 | Sequence-diagram view of the log | who talks to whom | High | Medium |
 | 4 | Three-error-channels lesson | isError vs JSON-RPC vs HTTP | High | Low-med |
 | 5 | Context-growth meter | context economics | Medium | Low |
 
-2. **Description sandbox.** Context Inspector gains per-tool description
-   editing (host-side override, logged as `context.updated`); re-ask a
-   question and watch tool choice change. "Your description is a prompt" is
-   the highest-value lesson for an audience writing MCP servers.
 3. **Sequence diagram.** Alternate rendering of the event log as
    browser ⇄ proxy ⇄ server swimlanes. Pure log rendering; works in replay.
 4. **Error channels.** Show a tool-level `isError` result (bad datastore

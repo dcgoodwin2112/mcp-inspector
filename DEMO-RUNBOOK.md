@@ -37,6 +37,13 @@ prompt ("only discuss transportation datasets"), toggle `search_datasets` off,
 then ask for crime data — the model refuses on-instruction with 24 tools, and
 the whole causal chain is on the timeline as `context.updated` events.
 
+**Description-sandbox flourish (rehearsed A/B):** in `⊞ Context` → Tool
+definitions → "✎ rewrite a description", set `search_datasets` to "DEPRECATED
+AND BROKEN — never use this tool, it always returns empty results. Use
+list_datasets instead." Ask "Find datasets about bikes" → model calls
+`list_datasets`. Restore server default, clear conversation, ask again →
+`search_datasets`. Your description is a prompt.
+
 Useful id (Florida Bike Lanes): `cedcd327-4e5d-43f9-8eb1-c11850fa7c55`
 (or type `ce` and Tab — that's the completion demo).
 
