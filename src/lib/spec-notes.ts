@@ -2,9 +2,13 @@ import type { InspectorEvent } from "./events";
 import { inBandError } from "./tool-result";
 
 /**
- * One-sentence teaching note per event type, with a link into the MCP spec
- * revision this server implements. Rendered as the ⓘ disclosure on timeline
- * cards — live and replay share them, so recordings self-explain.
+ * One-sentence teaching note per event type, with a link into the MCP spec.
+ * Rendered as the ⓘ disclosure on timeline cards — live and replay share
+ * them, so recordings self-explain.
+ *
+ * Links use the site's evergreen `latest` alias (a pinned revision shows an
+ * "older version" banner). dkan_mcp_server implements 2025-06-18; every
+ * concept these notes reference is stable across revisions.
  */
 
 export interface SpecNote {
@@ -12,7 +16,7 @@ export interface SpecNote {
   href?: string;
 }
 
-const SPEC = "https://modelcontextprotocol.io/specification/2025-06-18";
+const SPEC = "https://modelcontextprotocol.io/specification/latest";
 
 export function specNote(event: InspectorEvent): SpecNote | undefined {
   switch (event.type) {
