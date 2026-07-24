@@ -148,7 +148,9 @@ export function diagramRows(events: InspectorEvent[]): DiagramRow[] {
       case "annotation":
         rows.push({ kind: "banner", id: e.id, label: e.text });
         break;
-      // rpc.request / rpc.response / rpc.notification: raw layer — skipped.
+      // Skipped intentionally: rpc.* frames (the raw layer, shown in the
+      // frames drawer) and turn.started (host bookkeeping — the app→model
+      // context arrow already marks each turn).
     }
   }
   return rows;

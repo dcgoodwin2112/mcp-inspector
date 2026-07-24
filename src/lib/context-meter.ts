@@ -19,7 +19,9 @@ export function meterPoints(events: InspectorEvent[]): MeterPoint[] {
   for (const e of events) {
     if (e.type !== "context.snapshot" || !e.chars) continue;
     const { system, messages, tools } = e.chars;
-    points.push({ turnId: e.turnId, system, messages, tools, total: system + messages + tools });
+    const total = system + messages + tools;
+    if (total === 0) continue; // authored logs may carry zero sizes — no bar, no NaN
+    points.push({ turnId: e.turnId, system, messages, tools, total });
   }
   return points;
 }

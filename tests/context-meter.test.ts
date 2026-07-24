@@ -34,4 +34,16 @@ describe("meterPoints", () => {
     ]);
     expect(points).toEqual([]);
   });
+
+  it("skips zero-total snapshots (no 0/0 NaN bars from authored logs)", () => {
+    const points = meterPoints([
+      ev({
+        type: "context.snapshot",
+        turnId: "turn-1",
+        blocks: [],
+        chars: { system: 0, messages: 0, tools: 0 },
+      }),
+    ]);
+    expect(points).toEqual([]);
+  });
 });
