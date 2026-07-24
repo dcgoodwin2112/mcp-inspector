@@ -37,6 +37,12 @@ prompt ("only discuss transportation datasets"), toggle `search_datasets` off,
 then ask for crime data — the model refuses on-instruction with 24 tools, and
 the whole causal chain is on the timeline as `context.updated` events.
 
+**Error-channels flourish:** manual `query_datastore` with resourceId "nope"
+→ the card shows protocol ✓ with an amber "in-band error" chip (channel 1 —
+the model sees it and can react). Beat 7's forced 403 is channel 2 (protocol;
+the app sees it). Channel 3 (transport) is what a dead site looks like —
+mention, don't demo. The legend's "when things fail" section is the visual.
+
 **Description-sandbox flourish (rehearsed A/B):** in `⊞ Context` → Tool
 definitions → "✎ rewrite a description", set `search_datasets` to "DEPRECATED
 AND BROKEN — never use this tool, it always returns empty results. Use

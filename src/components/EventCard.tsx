@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { CapabilityItem, InspectorEvent, Primitive } from "@/lib/events";
 import { specNote, type SpecNote } from "@/lib/spec-notes";
+import { inBandError } from "@/lib/tool-result";
 import type { CapabilitiesListed } from "@/lib/timeline-rows";
 import { PRIMITIVE_STYLES } from "@/lib/ui";
 import { Markdown } from "./Markdown";
@@ -363,10 +364,11 @@ export function EventCard({
         </Card>
       );
 
-    case "tool.call.completed":
+    case "tool.call.completed": {
+      const inBand = inBandError(event.result);
       return (
         <Card info={info} primitive="tool" tone={event.isError ? "error" : undefined}>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <PrimitiveTag primitive="tool" />
             <span className="font-mono font-medium">{event.toolName}</span>
             <span className="text-xs text-zinc-500 dark:text-zinc-400">{event.latencyMs} ms</span>
@@ -377,10 +379,19 @@ export function EventCard({
             ) : (
               <span className="text-xs text-emerald-600 dark:text-emerald-400">✓</span>
             )}
+            {!event.isError && inBand !== undefined && (
+              <span
+                title={inBand}
+                className="rounded bg-amber-100 px-1 py-0.5 font-mono text-[10px] text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+              >
+                in-band error — protocol ✓, payload ✗
+              </span>
+            )}
           </div>
           <ResultTabs result={event.result} outputSchema={event.outputSchema} />
         </Card>
       );
+    }
 
     case "resource.read":
       return (

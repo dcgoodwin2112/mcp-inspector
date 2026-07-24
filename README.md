@@ -55,7 +55,9 @@ npm run dev
   controls each, actor badges); every timeline card has an "ⓘ what is this?"
   note linking into the MCP spec (works in replay too); tool-result cards tab
   between text content, `structuredContent`, the tool's `outputSchema`, and
-  the raw result.
+  the raw result. Failures are channel-labeled: in-band tool-result errors
+  (amber chip — the model sees them), JSON-RPC errors (the app sees them),
+  transport failures — the legend's "when things fail" section maps them.
 - **`⊞ Context`**: the exact payload the next model call will send, read live
   from the agent loop — system prompt (attached data visually delimited),
   full conversation array, tool definitions, ~token estimates. Editable:

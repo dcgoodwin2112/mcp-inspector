@@ -16,17 +16,16 @@ freeze and Aug 21 talk. Decision history: [mcp-inspector-handoff-plan.md](mcp-in
   → model switches to list_datasets, restore → back to search_datasets)
 - Sequence-diagram view (⇄ Diagram toggle in live + replay; swimlanes match
   the actor badges; rows derived by `src/lib/sequence.ts`)
+- Three-error-channels lesson (in-band chip on tool results — DKAN returns
+  structured error payloads with isError:false; channel-numbered ⓘ notes;
+  "when things fail" legend section)
 
 ## Before the talk
 
 | # | Feature | Teaches | Impact | Effort |
 |---|---------|---------|--------|--------|
-| 4 | Three-error-channels lesson | isError vs JSON-RPC vs HTTP | High | Low-med |
 | 5 | Context-growth meter | context economics | Medium | Low |
 
-4. **Error channels.** Show a tool-level `isError` result (bad datastore
-   query) beside the JSON-RPC 403/-32002 and a transport failure; small
-   comparison card.
 5. **Context meter.** Chart tokens per hop from `context.snapshot` events.
 
 ## After the talk

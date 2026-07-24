@@ -1,4 +1,5 @@
 import type { InspectorEvent } from "./events";
+import { inBandError } from "./tool-result";
 
 /**
  * One-sentence teaching note per event type, with a link into the MCP spec
@@ -65,6 +66,12 @@ export function specNote(event: InspectorEvent): SpecNote | undefined {
         href: `${SPEC}/server/tools`,
       };
     case "tool.call.completed":
+      if (event.isError || inBandError(event.result) !== undefined) {
+        return {
+          text: "Error channel 1 of 3 — the TOOL RESULT. The protocol call succeeded; the failure travels in the payload (the isError flag, or DKAN's in-band error field). The MODEL sees this one and can react to it.",
+          href: `${SPEC}/server/tools`,
+        };
+      }
       return {
         text: "A tool result: content blocks for the model, plus optional structuredContent matching the tool's declared outputSchema. Tool-level failures set isError instead of a protocol error.",
         href: `${SPEC}/server/tools`,
@@ -115,9 +122,15 @@ export function specNote(event: InspectorEvent): SpecNote | undefined {
         href: `${SPEC}/architecture`,
       };
     case "error":
+      if (event.scope === "rpc" || event.scope === "auth") {
+        return {
+          text: "Error channel 2 of 3 — the PROTOCOL. A JSON-RPC error refused the request (invalid params arrive as -32602 over HTTP 200; permission denials as -32002 over HTTP 403). The APP sees this; the model only learns what the host relays.",
+          href: `${SPEC}/basic`,
+        };
+      }
       return {
-        text: "A JSON-RPC protocol error — the layer below tool results. Compare tool-level isError results (which the model sees) and transport-level failures.",
-        href: `${SPEC}/basic`,
+        text: "Error channel 3 of 3 — the TRANSPORT. The request itself failed and nothing MCP-shaped came back; retries and backoff live at this layer.",
+        href: `${SPEC}/basic/transports`,
       };
     case "session.ended":
       return {
