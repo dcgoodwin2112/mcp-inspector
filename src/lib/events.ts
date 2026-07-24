@@ -210,6 +210,14 @@ export const ContextSnapshotSchema = EventBase.extend({
   type: z.literal("context.snapshot"),
   turnId: z.string(),
   blocks: z.array(ContextBlockSchema),
+  // Payload sizes in characters (~4 chars/token) — the context-growth meter.
+  chars: z
+    .object({
+      system: z.number().nonnegative(),
+      messages: z.number().nonnegative(),
+      tools: z.number().nonnegative(),
+    })
+    .optional(),
 });
 
 // --- Raw JSON-RPC frames (frames drawer) ---------------------------------

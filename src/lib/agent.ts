@@ -119,6 +119,17 @@ export class AgentLoop {
               ? m.content.slice(0, 80)
               : `${(m.content as ContentBlock[]).length} content block(s)`,
         })),
+        {
+          system: this.system.length,
+          messages: JSON.stringify(this.messages).length,
+          tools: JSON.stringify(
+            this.session.effectiveTools.map((t) => ({
+              name: t.name,
+              description: t.description,
+              input_schema: t.schema,
+            })),
+          ).length,
+        },
       );
 
       await this.gate();

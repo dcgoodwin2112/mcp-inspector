@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import type { AgentLoop, ContentBlock } from "@/lib/agent";
+import type { InspectorEvent } from "@/lib/events";
 import { AGENT_SYSTEM_SUMMARY, type LiveSession } from "@/lib/live";
+import { ContextMeter } from "./ContextMeter";
 
 /**
  * The EXACT context the next model call will send — read live from the agent
@@ -223,10 +225,12 @@ function DescriptionSandbox({ session, busy }: { session: LiveSession; busy: boo
 export function ContextInspector({
   loop,
   session,
+  events = [],
   busy = false,
 }: {
   loop: AgentLoop;
   session: LiveSession;
+  events?: InspectorEvent[];
   busy?: boolean;
 }) {
   const [editingSystem, setEditingSystem] = useState<string | null>(null);
@@ -253,6 +257,7 @@ export function ContextInspector({
         <span className="ml-auto font-mono text-[10px] text-zinc-500 dark:text-zinc-400">total {tok(totalChars)}</span>
       </div>
       <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-2 py-1.5">
+        <ContextMeter events={events} />
         <Section
           title="System prompt"
           size={tok(system.length)}

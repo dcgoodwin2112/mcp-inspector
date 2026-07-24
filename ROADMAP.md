@@ -19,14 +19,11 @@ freeze and Aug 21 talk. Decision history: [mcp-inspector-handoff-plan.md](mcp-in
 - Three-error-channels lesson (in-band chip on tool results — DKAN returns
   structured error payloads with isError:false; channel-numbered ⓘ notes;
   "when things fail" legend section)
+- Context-growth meter (stacked bars per model call in the ⊞ Context drawer;
+  sizes recorded on context.snapshot events — tool defs are the flat
+  baseline, conversation is what grows)
 
-## Before the talk
-
-| # | Feature | Teaches | Impact | Effort |
-|---|---------|---------|--------|--------|
-| 5 | Context-growth meter | context economics | Medium | Low |
-
-5. **Context meter.** Chart tokens per hop from `context.snapshot` events.
+All pre-talk roadmap items are shipped.
 
 ## After the talk
 

@@ -505,6 +505,7 @@ export function LiveView({
                 <ContextInspector
                   loop={loopRef.current!}
                   session={sessionRef.current!}
+                  events={events}
                   busy={busy}
                 />
               ) : (

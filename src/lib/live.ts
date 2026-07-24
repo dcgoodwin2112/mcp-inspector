@@ -358,10 +358,15 @@ export class LiveSession {
   }
 
   /** What the model receives — the context visualizer's data. */
-  snapshotContext(turnId: string, messageSummaries: Array<{ role: string; summary: string }> = []): void {
+  snapshotContext(
+    turnId: string,
+    messageSummaries: Array<{ role: string; summary: string }> = [],
+    chars?: { system: number; messages: number; tools: number },
+  ): void {
     this.store.append("app", {
       type: "context.snapshot",
       turnId,
+      chars,
       blocks: [
         { kind: "system" as const, summary: AGENT_SYSTEM_SUMMARY },
         ...messageSummaries.map((m) => ({ kind: "message" as const, role: m.role, summary: m.summary })),

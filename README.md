@@ -60,7 +60,9 @@ npm run dev
   transport failures — the legend's "when things fail" section maps them.
 - **`⊞ Context`**: the exact payload the next model call will send, read live
   from the agent loop — system prompt (attached data visually delimited),
-  full conversation array, tool definitions, ~token estimates. Editable:
+  full conversation array, tool definitions, ~token estimates, and a
+  context-growth meter (stacked bars per model call: flat tool-definition
+  baseline, growing conversation). Editable:
   system instructions, per-resource detach, host-side tool toggles (hides
   tools from the model only), per-tool description rewriting ("descriptions
   are prompts" — re-ask a question and watch tool choice change), clear
