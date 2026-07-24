@@ -14,17 +14,16 @@ freeze and Aug 21 talk. Decision history: [mcp-inspector-handoff-plan.md](mcp-in
 - Description-engineering sandbox (rewrite a tool description host-side in
   the Context inspector; verified A/B: poisoned search_datasets description
   → model switches to list_datasets, restore → back to search_datasets)
+- Sequence-diagram view (⇄ Diagram toggle in live + replay; swimlanes match
+  the actor badges; rows derived by `src/lib/sequence.ts`)
 
 ## Before the talk
 
 | # | Feature | Teaches | Impact | Effort |
 |---|---------|---------|--------|--------|
-| 3 | Sequence-diagram view of the log | who talks to whom | High | Medium |
 | 4 | Three-error-channels lesson | isError vs JSON-RPC vs HTTP | High | Low-med |
 | 5 | Context-growth meter | context economics | Medium | Low |
 
-3. **Sequence diagram.** Alternate rendering of the event log as
-   browser ⇄ proxy ⇄ server swimlanes. Pure log rendering; works in replay.
 4. **Error channels.** Show a tool-level `isError` result (bad datastore
    query) beside the JSON-RPC 403/-32002 and a transport failure; small
    comparison card.

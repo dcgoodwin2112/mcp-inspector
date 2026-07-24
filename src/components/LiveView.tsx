@@ -17,6 +17,7 @@ import { CapabilityPanel } from "./CapabilityPanel";
 import { Legend } from "./Legend";
 import { ManualCall } from "./ManualCall";
 import { ResourceBrowser } from "./ResourceBrowser";
+import { SequenceDiagram } from "./SequenceDiagram";
 import { Timeline } from "./Timeline";
 
 type Selection =
@@ -66,6 +67,7 @@ export function LiveView({
   const [agentWaiting, setAgentWaiting] = useState(false);
   const [rawFrames, toggleRawFrames] = useRawFrames();
   const [contextOpen, setContextOpen] = useState(false);
+  const [diagram, setDiagram] = useState(false);
   const [railWidth, setRailWidth] = useState(420);
   /** Stacked-layout rail height in px; null = the 50% default. */
   const [railHeight, setRailHeight] = useState<number | null>(null);
@@ -434,6 +436,19 @@ export function LiveView({
           >
             ⊞ Context
           </button>
+          <button
+            type="button"
+            onClick={() => setDiagram((v) => !v)}
+            aria-pressed={diagram}
+            title="Render the log as a sequence diagram — who talks to whom"
+            className={`rounded-md border px-2 py-0.5 font-mono text-xs ${
+              diagram
+                ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
+                : "border-zinc-300 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            }`}
+          >
+            ⇄ Diagram
+          </button>
           {events.length > 0 && (
             <span className="ml-auto flex gap-2">
               <button
@@ -464,10 +479,14 @@ export function LiveView({
           )}
         </div>
         <div className="min-h-0 flex-1">
-          <Timeline
-            events={timelineEvents}
-            emptyHint="Pick a persona and press Connect — the handshake and capability lists will stream in here."
-          />
+          {diagram ? (
+            <SequenceDiagram events={timelineEvents} />
+          ) : (
+            <Timeline
+              events={timelineEvents}
+              emptyHint="Pick a persona and press Connect — the handshake and capability lists will stream in here."
+            />
+          )}
         </div>
         {(contextOpen || rawFrames) && (
           <>

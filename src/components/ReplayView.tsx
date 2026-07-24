@@ -8,6 +8,7 @@ import { useReplay } from "@/hooks/useReplay";
 import { isRpcEvent, useRawFrames } from "@/hooks/useRawFrames";
 import { FramesDrawer } from "./FramesDrawer";
 import { ReplayControls } from "./ReplayControls";
+import { SequenceDiagram } from "./SequenceDiagram";
 import { Timeline } from "./Timeline";
 
 export function ReplayView({
@@ -24,6 +25,7 @@ export function ReplayView({
       : (RECORDINGS.find((r) => r.id === selected)?.log ?? propLog);
   const { controller, state } = useReplay(log);
   const [rawFrames, toggleRawFrames] = useRawFrames();
+  const [diagram, setDiagram] = useState(false);
   const drawer = useDrawerResize();
 
   const visible = useMemo(() => log.events.slice(0, state.cursor), [log, state.cursor]);
@@ -90,6 +92,19 @@ export function ReplayView({
         </div>
         <button
           type="button"
+          onClick={() => setDiagram((v) => !v)}
+          aria-pressed={diagram}
+          title="Render the log as a sequence diagram — who talks to whom"
+          className={`rounded-md border px-2.5 py-1 font-mono text-xs ${
+            diagram
+              ? "border-violet-500 bg-violet-50 text-violet-700 dark:bg-violet-950 dark:text-violet-300"
+              : "border-zinc-300 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+          }`}
+        >
+          ⇄ Diagram
+        </button>
+        <button
+          type="button"
           onClick={toggleRawFrames}
           aria-pressed={rawFrames}
           title="Show raw JSON-RPC frames"
@@ -104,12 +119,16 @@ export function ReplayView({
       </div>
       )}
       <div className={`min-h-0 flex-1 pt-3 ${present ? "mx-auto w-full max-w-4xl" : ""}`}>
-        <Timeline
-          events={timelineEvents}
-          emptyHint="Press ▶ (or space) to start the replay."
-          jumpNonce={jumpNonce}
-          present={present}
-        />
+        {diagram ? (
+          <SequenceDiagram events={timelineEvents} />
+        ) : (
+          <Timeline
+            events={timelineEvents}
+            emptyHint="Press ▶ (or space) to start the replay."
+            jumpNonce={jumpNonce}
+            present={present}
+          />
+        )}
       </div>
       {rawFrames && (
         <>

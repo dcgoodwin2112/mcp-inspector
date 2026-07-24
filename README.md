@@ -46,6 +46,9 @@ npm run dev
   `⬇ Save .json` on the timeline.
 - **Replay**: recording picker + play/step controls. The golden demo recording
   (`src/lib/fixtures/goldens/full-demo.json`) auto-pauses at narration cards.
+- **`⇄ Diagram`**: renders the same log as a sequence diagram — swimlanes for
+  user/model/app/server (matching the actor badges), request/response arrow
+  pairs, errors in red. Available in live and replay.
 - **`{ } Raw frames`**: JSON-RPC exchanges paired by request id, hidden from
   the main timeline.
 - **Learning aids**: a collapsible legend in the rail (primitives + who
