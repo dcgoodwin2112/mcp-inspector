@@ -325,21 +325,21 @@ export function EventCard({
           <ul className="mt-1 space-y-0.5 text-xs">
             {event.blocks.map((b, i) => (
               <li key={i} className="text-zinc-600 dark:text-zinc-400">
-                {b.kind === "system" && <>⚙ system: {b.summary}</>}
+                {b.kind === "system" && <>§ system: {b.summary}</>}
                 {b.kind === "message" && (
                   <>
-                    💬 {b.role}: {b.summary}
+                    ↳ {b.role}: {b.summary}
                   </>
                 )}
                 {b.kind === "tool_definitions" && (
                   <>
-                    🔧 {b.count} tool definitions:{" "}
+                    ⚙ {b.count} tool definitions:{" "}
                     <span className="font-mono">{b.names.join(", ")}</span>
                   </>
                 )}
                 {b.kind === "attached_resource" && (
                   <>
-                    📎 resource: {b.name} <span className="font-mono">{b.uri}</span>
+                    ⊕ resource: {b.name} <span className="font-mono">{b.uri}</span>
                   </>
                 )}
               </li>
@@ -497,7 +497,7 @@ export function EventCard({
     case "annotation":
       return (
         <div className="annotation-card rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950/40">
-          <span className="mr-2">📝</span>
+          <span className="mr-2">¶</span>
           {event.text}
           {event.pauseOnReplay && (
             <span className="ml-2 rounded bg-amber-200 px-1.5 py-0.5 text-xs font-medium text-amber-900 dark:bg-amber-900 dark:text-amber-200">

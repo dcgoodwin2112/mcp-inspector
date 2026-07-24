@@ -59,7 +59,7 @@ History/decisions: [mcp-inspector-handoff-plan.md](mcp-inspector-handoff-plan.md
   parsing (`src/lib/slash.ts`), timeline grouping (`src/lib/timeline-rows.ts`),
   schema-form. Components stay untested; pull new logic into `src/lib/` and
   test it there.
-- **Golden re-cut**: drive the beats live → `⬇ Save .json` →
+- **Golden re-cut**: drive the beats live → `↓ Save .json` →
   `npx tsx scripts/annotate-golden.ts ~/Downloads/live-*.json` (beat matchers
   are content-based; update them if the beat structure changes).
 - **Server facts** (verified against `dkan_mcp_server`): read token lists 25

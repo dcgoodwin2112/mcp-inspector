@@ -63,7 +63,7 @@ function Note({ row }: { row: Extract<DiagramRow, { kind: "note" }> }) {
 function Banner({ row }: { row: Extract<DiagramRow, { kind: "banner" }> }) {
   return (
     <div className="relative z-10 mx-[4%] my-1 rounded-md border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs dark:border-amber-800 dark:bg-amber-950/80" role="listitem">
-      📝 {row.label}
+      ¶ {row.label}
     </div>
   );
 }

@@ -43,7 +43,7 @@ npm run dev
   typeahead via MCP completion/complete, Tab accepts), first Enter expands &
   previews, second Enter sends (Esc cancels). Switching personas appends to
   the same log — that powers the capability diff. `▶ Replay recording` /
-  `⬇ Save .json` on the timeline.
+  `↓ Save .json` on the timeline.
 - **Replay**: recording picker + play/step controls. The golden demo recording
   (`src/lib/fixtures/goldens/full-demo.json`) auto-pauses at narration cards.
 - **`⇄ Diagram`**: renders the same log as a sequence diagram — swimlanes for
